@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💍</text></svg>">
+    
+    <meta name="description" content="Your Wedding Planning Dashboard - Manage your budget, timeline, vendors and more">
+    <meta name="author" content="Tom Mulungi">
+    <title>My Wedding Dashboard | Wedding Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6b5b95;
+            --secondary-color: #4a6b88;
+            --accent-color: #ff6b8b;
+            --light-color: #f8f9fa;
+            --dark-color: #333;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+
+        .dashboard {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .dashboard-header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+
+        .dashboard-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .user-welcome h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .wedding-date {
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-controls button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .nav-controls button:hover {
+            background: var(--secondary-color);
+        }
+
+        .dashboard-main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-header h3 {
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Countdown Styles */
+        .countdown-container {
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+        }
+
+        .countdown-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .countdown-unit {
+            text-align: center;
+        }
+
+        .countdown-value {
+            font-size: 2rem;
+            font-weight: bold;
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem;
+            border-radius: 10px;
+            min-width: 60px;
+        }
+
+        .countdown-label {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            opacity: 0.9;
+        }
+
+        /* Budget Styles */
+        .budget-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .budget-item {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 10px;
+            background: var(--light-color);
+        }
+
+        .budget-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .budget-label {
+            font-size: 0.8rem;
+            color: var(--dark-color);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* Calendar Styles */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .calendar-day {
+            text-align: center;
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .calendar-date {
+            text-align: center;
+            padding: 0.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .calendar-date:hover {
+            background: var(--light-color);
+        }
+
+        .calendar-date.has-event {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .calendar-date.today {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Task List Styles */
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-checkbox {
+            margin-right: 1rem;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .task-due {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+        }
+
+        .task-priority {
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .priority-high { background: var(--danger-color); color: white; }
+        .priority-medium { background: var(--warning-color); color: black; }
+        .priority-low { background: var(--success-color); color: white; }
+
+        /* Favorites Styles */
+        .favorites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .favorite-item {
+            text-align: center;
+            padding: 1rem;
+            border: 2px solid var(--light-color);
+            border-radius: 10px;
+            transition: border-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .favorite-item:hover {
+            border-color: var(--primary-color);
+        }
+
+        .favorite-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .favorite-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .favorite-category {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            background: var(--light-color);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .action-btn i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Sidebar */
+        .dashboard-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark-color);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .save-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .save-btn:hover {
+            background: var(--secondary-color);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-main {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="dashboard">
+    <!-- Dashboard Header -->
+    <header class="dashboard-header">
+        <div class="dashboard-nav">
+            <div class="user-welcome">
+                <h1 id="welcome-message">Welcome! 💕</h1>
+                <div class="wedding-date" id="wedding-date-display">
+                    <i class="fas fa-calendar-alt"></i>
+                    Set your wedding date to get started!
+                </div>
+            </div>
+            <div class="nav-controls">
+                <button onclick="window.location.href='../index.html'">
+                    <i class="fas fa-home"></i> Home
+                </button>
+                <button onclick="openSettingsModal()">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
+                <button id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Content -->
+    <main class="dashboard-main">
+        <!-- Left Column - Main Content -->
+        <div class="dashboard-content">
+            <!-- Countdown & Quick Stats -->
+            <div class="dashboard-grid">
+                <!-- Wedding Countdown -->
+                <div class="countdown-container">
+                    <div class="countdown-title">
+                        <i class="fas fa-heart"></i> <span id="countdown-title">Countdown to Your Big Day</span>
+                    </div>
+                    <div class="countdown-timer" id="countdown-timer">
+                        <div class="countdown-unit">
+                            <div class="countdown-value" id="days">--</div>
+                            <div class="countdown-label">Days</div>
+                        </div>
+                        <div class="countdown-unit">
+                            <div class="countdown-value" id="hours">--</div>
+                            <div class="countdown-label">Hours</div>
+                        </div>
+                        <div class="countdown-unit">
+                            <div class="countdown-value" id="minutes">--</div>
+                            <div class="countdown-label">Minutes</div>
+                        </div>
+                        <div class="countdown-unit">
+                            <div class="countdown-value" id="seconds">--</div>
+                            <div class="countdown-label">Seconds</div>
+                        </div>
+                    </div>
+                    <p id="countdown-message">Set your wedding date to start the countdown! 💖</p>
+                </div>
+
+                <!-- Budget Summary -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-money-bill-wave"></i> Budget Overview</h3>
+                        <div class="card-icon" onclick="openBudgetModal()">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                    </div>
+                    <div class="budget-summary">
+                        <div class="budget-item">
+                            <div class="budget-amount" id="total-budget">$0</div>
+                            <div class="budget-label">Total Budget</div>
+                        </div>
+                        <div class="budget-item">
+                            <div class="budget-amount" id="spent-budget">$0</div>
+                            <div class="budget-label">Spent</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="budget-progress" style="width: 0%"></div>
+                    </div>
+                    <div style="text-align: center; color: var(--secondary-color); font-size: 0.9rem;" id="budget-status">
+                        Set your budget to get started
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar & Tasks -->
+            <div class="dashboard-grid">
+                <!-- Wedding Calendar -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-calendar"></i> Wedding Calendar</h3>
+                        <div class="card-icon" onclick="openCalendarModal()">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <div id="calendar-container">
+                        <p style="text-align: center; color: var(--secondary-color); padding: 2rem;">
+                            Add events to your wedding calendar
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Task List -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-tasks"></i> Wedding Tasks</h3>
+                        <div class="card-icon" onclick="openTasksModal()">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="task-list" id="task-list">
+                        <p style="text-align: center; color: var(--secondary-color); padding: 1rem;">
+                            Add tasks to your wedding checklist
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Favorites & Quick Actions -->
+            <div class="dashboard-grid">
+                <!-- Favorite Vendors -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-heart"></i> Favorite Vendors</h3>
+                        <div class="card-icon" onclick="openFavoritesModal()">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="favorites-grid" id="favorites-container">
+                        <p style="text-align: center; color: var(--secondary-color); padding: 1rem; grid-column: 1 / -1;">
+                            Save your favorite vendors here
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="action-btn" onclick="openBudgetModal()">
+                            <i class="fas fa-calculator"></i>
+                            <span>Budget</span>
+                        </button>
+                        <button class="action-btn" onclick="openGuestModal()">
+                            <i class="fas fa-users"></i>
+                            <span>Guests</span>
+                        </button>
+                        <button class="action-btn" onclick="openTasksModal()">
+                            <i class="fas fa-list-check"></i>
+                            <span>Checklist</span>
+                        </button>
+                        <button class="action-btn" onclick="window.location.href='vendors.html'">
+                            <i class="fas fa-search"></i>
+                            <span>Vendors</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Sidebar -->
+        <div class="dashboard-sidebar">
+            <!-- Wedding Details -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-info-circle"></i> Wedding Details</h3>
+                    <div class="card-icon" onclick="openSettingsModal()">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                </div>
+                <div id="wedding-details" style="line-height: 1.6;">
+                    <p><strong>Couple Names:</strong> Not set</p>
+                    <p><strong>Date:</strong> Not set</p>
+                    <p><strong>Time:</strong> Not set</p>
+                    <p><strong>Venue:</strong> Not set</p>
+                    <p><strong>Guests:</strong> 0</p>
+                    <p><strong>Theme:</strong> Not set</p>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                </div>
+                <div id="recent-activity" style="line-height: 1.6; font-size: 0.9rem;">
+                    <p>Welcome to your wedding dashboard! 🎉</p>
+                    <p>Start by setting up your wedding details.</p>
+                </div>
+            </div>
+
+            <!-- Budget Breakdown -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-pie"></i> Budget Breakdown</h3>
+                </div>
+                <div id="budget-breakdown" style="line-height: 1.6; font-size: 0.9rem;">
+                    <p>Set your budget to see the breakdown</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Wedding Settings</h3>
+                <button class="close-modal" onclick="closeSettingsModal()">&times;</button>
+            </div>
+            <form id="wedding-settings-form">
+                <div class="form-group">
+                    <label>Couple Names</label>
+                    <input type="text" id="couple-names" placeholder="e.g., Sarah & Michael" required>
+                </div>
+                <div class="form-group">
+                    <label>Wedding Date</label>
+                    <input type="date" id="wedding-date" required>
+                </div>
+                <div class="form-group">
+                    <label>Wedding Time</label>
+                    <input type="time" id="wedding-time" required>
+                </div>
+                <div class="form-group">
+                    <label>Venue</label>
+                    <input type="text" id="wedding-venue" placeholder="Venue name">
+                </div>
+                <div class="form-group">
+                    <label>Number of Guests</label>
+                    <input type="number" id="guest-count" placeholder="150">
+                </div>
+                <div class="form-group">
+                    <label>Wedding Theme</label>
+                    <input type="text" id="wedding-theme" placeholder="e.g., Rustic Elegance">
+                </div>
+                <button type="submit" class="save-btn">Save Settings</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Budget Modal -->
+    <div id="budget-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Budget Settings</h3>
+                <button class="close-modal" onclick="closeBudgetModal()">&times;</button>
+            </div>
+            <form id="budget-form">
+                <div class="form-group">
+                    <label>Total Budget ($)</label>
+                    <input type="number" id="total-budget-input" placeholder="25000" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount Spent So Far ($)</label>
+                    <input type="number" id="spent-budget-input" placeholder="0">
+                </div>
+                <button type="submit" class="save-btn">Save Budget</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // User data storage
+        let userData = {
+            coupleNames: '',
+            weddingDate: '',
+            weddingTime: '',
+            venue: '',
+            guestCount: 0,
+            theme: '',
+            totalBudget: 0,
+            spentBudget: 0,
+            tasks: [],
+            favorites: [],
+            events: []
+        };
+
+        // Load user data from localStorage
+        function loadUserData() {
+            const savedData = localStorage.getItem('weddingUserData');
+            if (savedData) {
+                userData = JSON.parse(savedData);
+                updateDashboard();
+            }
+        }
+
+        // Save user data to localStorage
+        function saveUserData() {
+            localStorage.setItem('weddingUserData', JSON.stringify(userData));
+            updateDashboard();
+        }
+
+        // Update the entire dashboard with user data
+        function updateDashboard() {
+            // Update welcome message
+            if (userData.coupleNames) {
+                document.getElementById('welcome-message').textContent = `Welcome, ${userData.coupleNames}! 💕`;
+            }
+
+            // Update wedding date display
+            if (userData.weddingDate) {
+                const date = new Date(userData.weddingDate);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                document.getElementById('wedding-date-display').innerHTML = 
+                    `<i class="fas fa-calendar-alt"></i> Wedding Date: ${formattedDate}`;
+            }
+
+            // Update wedding details sidebar
+            document.getElementById('wedding-details').innerHTML = `
+                <p><strong>Couple Names:</strong> ${userData.coupleNames || 'Not set'}</p>
+                <p><strong>Date:</strong> ${userData.weddingDate ? new Date(userData.weddingDate).toLocaleDateString() : 'Not set'}</p>
+                <p><strong>Time:</strong> ${userData.weddingTime || 'Not set'}</p>
+                <p><strong>Venue:</strong> ${userData.venue || 'Not set'}</p>
+                <p><strong>Guests:</strong> ${userData.guestCount || '0'}</p>
+                <p><strong>Theme:</strong> ${userData.theme || 'Not set'}</p>
+            `;
+
+            // Update budget
+            document.getElementById('total-budget').textContent = `$${userData.totalBudget.toLocaleString()}`;
+            document.getElementById('spent-budget').textContent = `$${userData.spentBudget.toLocaleString()}`;
+            
+            const budgetPercent = userData.totalBudget > 0 ? (userData.spentBudget / userData.totalBudget) * 100 : 0;
+            document.getElementById('budget-progress').style.width = `${budgetPercent}%`;
+            
+            document.getElementById('budget-status').textContent = 
+                userData.totalBudget > 0 ? 
+                `${Math.round(budgetPercent)}% of budget used • $${(userData.totalBudget - userData.spentBudget).toLocaleString()} remaining` :
+                'Set your budget to get started';
+
+            // Update budget breakdown
+            if (userData.totalBudget > 0) {
+                document.getElementById('budget-breakdown').innerHTML = `
+                    <p>Total: $${userData.totalBudget.toLocaleString()}</p>
+                    <p>Spent: $${userData.spentBudget.toLocaleString()}</p>
+                    <p>Remaining: $${(userData.totalBudget - userData.spentBudget).toLocaleString()}</p>
+                    <p>Progress: ${Math.round(budgetPercent)}%</p>
+                `;
+            }
+
+            // Update tasks
+            updateTaskList();
+
+            // Update favorites
+            updateFavorites();
+
+            // Update recent activity
+            updateRecentActivity();
+        }
+
+        // Update task list
+        function updateTaskList() {
+            const taskList = document.getElementById('task-list');
+            
+            if (userData.tasks.length === 0) {
+                taskList.innerHTML = '<p style="text-align: center; color: var(--secondary-color); padding: 1rem;">Add tasks to your wedding checklist</p>';
+                return;
+            }
+
+            taskList.innerHTML = userData.tasks.map((task, index) => `
+                <div class="task-item">
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} 
+                           onchange="toggleTask(${index})">
+                    <div class="task-content">
+                        <div class="task-title">${task.title}</div>
+                        <div class="task-due">${task.completed ? 'Completed' : `Due: ${task.dueDate}`}</div>
+                    </div>
+                    <div class="task-priority priority-${task.priority}">${task.priority}</div>
+                </div>
+            `).join('');
+        }
+
+        // Update favorites
+        function updateFavorites() {
+            const favoritesContainer = document.getElementById('favorites-container');
+            
+            if (userData.favorites.length === 0) {
+                favoritesContainer.innerHTML = '<p style="text-align: center; color: var(--secondary-color); padding: 1rem; grid-column: 1 / -1;">Save your favorite vendors here</p>';
+                return;
+            }
+
+            favoritesContainer.innerHTML = userData.favorites.map(favorite => `
+                <div class="favorite-item">
+                    <div class="favorite-icon"><i class="${favorite.icon}"></i></div>
+                    <div class="favorite-name">${favorite.name}</div>
+                    <div class="favorite-category">${favorite.category}</div>
+                </div>
+            `).join('');
+        }
+
+        // Update recent activity
+        function updateRecentActivity() {
+            const activities = [];
+            
+            if (userData.coupleNames) {
+                activities.push('✅ Wedding details updated');
+            }
+            if (userData.totalBudget > 0) {
+                activities.push('💰 Budget set');
+            }
+            if (userData.tasks.length > 0) {
+                const completedTasks = userData.tasks.filter(task => task.completed).length;
+                activities.push(`📝 ${completedTasks}/${userData.tasks.length} tasks completed`);
+            }
+            if (userData.favorites.length > 0) {
+                activities.push(`❤️ ${userData.favorites.length} favorite vendors`);
+            }
+
+            if (activities.length === 0) {
+                activities.push('Welcome to your wedding dashboard! 🎉', 'Start by setting up your wedding details.');
+            }
+
+            document.getElementById('recent-activity').innerHTML = 
+                activities.map(activity => `<p>${activity}</p>`).join('');
+        }
+
+        // Countdown Timer
+        function updateCountdown() {
+            if (!userData.weddingDate || !userData.weddingTime) {
+                document.getElementById('days').textContent = '--';
+                document.getElementById('hours').textContent = '--';
+                document.getElementById('minutes').textContent = '--';
+                document.getElementById('seconds').textContent = '--';
+                return;
+            }
+
+            const weddingDateTime = new Date(`${userData.weddingDate}T${userData.weddingTime}`).getTime();
+            const now = new Date().getTime();
+            const distance = weddingDateTime - now;
+
+            if (distance < 0) {
+                document.getElementById('countdown-title').textContent = 'Wedding Day! 🎉';
+                document.getElementById('countdown-message').textContent = 'Congratulations on your wedding day!';
+                document.getElementById('days').textContent = '00';
+                document.getElementById('hours').textContent = '00';
+                document.getElementById('minutes').textContent = '00';
+                document.getElementById('seconds').textContent = '00';
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            
+            document.getElementById('countdown-title').textContent = `Countdown to ${userData.coupleNames || 'Your'}'s Big Day`;
+            document.getElementById('countdown-message').textContent = 'Your dream wedding is getting closer every second! 💖';
+        }
+
+        // Modal Functions
+        function openSettingsModal() {
+            document.getElementById('settings-modal').style.display = 'flex';
+            // Populate form with current data
+            document.getElementById('couple-names').value = userData.coupleNames || '';
+            document.getElementById('wedding-date').value = userData.weddingDate || '';
+            document.getElementById('wedding-time').value = userData.weddingTime || '';
+            document.getElementById('wedding-venue').value = userData.venue || '';
+            document.getElementById('guest-count').value = userData.guestCount || '';
+            document.getElementById('wedding-theme').value = userData.theme || '';
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').style.display = 'none';
+        }
+
+        function openBudgetModal() {
+            document.getElementById('budget-modal').style.display = 'flex';
+            document.getElementById('total-budget-input').value = userData.totalBudget || '';
+            document.getElementById('spent-budget-input').value = userData.spentBudget || '';
+        }
+
+        function closeBudgetModal() {
+            document.getElementById('budget-modal').style.display = 'none';
+        }
+
+        // Form Handlers
+        document.getElementById('wedding-settings-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            userData.coupleNames = document.getElementById('couple-names').value;
+            userData.weddingDate = document.getElementById('wedding-date').value;
+            userData.weddingTime = document.getElementById('wedding-time').value;
+            userData.venue = document.getElementById('wedding-venue').value;
+            userData.guestCount = parseInt(document.getElementById('guest-count').value) || 0;
+            userData.theme = document.getElementById('wedding-theme').value;
+            saveUserData();
+            closeSettingsModal();
+        });
+
+        document.getElementById('budget-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            userData.totalBudget = parseFloat(document.getElementById('total-budget-input').value) || 0;
+            userData.spentBudget = parseFloat(document.getElementById('spent-budget-input').value) || 0;
+            saveUserData();
+            closeBudgetModal();
+        });
+
+        // Task management (simplified for demo)
+        function openTasksModal() {
+            // Simple task addition for demo
+            const taskTitle = prompt('Enter task title:');
+            if (taskTitle) {
+                const taskDue = prompt('Enter due date (YYYY-MM-DD):');
+                const taskPriority = prompt('Enter priority (high/medium/low):') || 'medium';
+                
+                userData.tasks.push({
+                    title: taskTitle,
+                    dueDate: taskDue || 'Soon',
+                    priority: taskPriority,
+                    completed: false
+                });
+                saveUserData();
+            }
+        }
+
+        function toggleTask(index) {
+            userData.tasks[index].completed = !userData.tasks[index].completed;
+            saveUserData();
+        }
+
+        function openFavoritesModal() {
+            // Simple favorite addition for demo
+            const vendorName = prompt('Enter vendor name:');
+            if (vendorName) {
+                const vendorCategory = prompt('Enter vendor category:');
+                userData.favorites.push({
+                    name: vendorName,
+                    category: vendorCategory || 'Vendor',
+                    icon: 'fas fa-star'
+                });
+                saveUserData();
+            }
+        }
+
+        function openGuestModal() {
+            alert('Guest list feature coming soon!');
+        }
+
+        // Logout functionality
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserData();
+            setInterval(updateCountdown, 1000);
+            updateCountdown();
+        });
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            const settingsModal = document.getElementById('settings-modal');
+            const budgetModal = document.getElementById('budget-modal');
+            
+            if (event.target === settingsModal) {
+                closeSettingsModal();
+            }
+            if (event.target === budgetModal) {
+                closeBudgetModal();
+            }
+        });
+    </script>
+</body>
+</html>

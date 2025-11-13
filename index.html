@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💍</text></svg>">
+    
+    <!-- CSP Policy -->
+    <meta http-equiv="Content-Security-Policy" 
+          content="default-src 'self'; 
+                   img-src 'self' data: blob: https:; 
+                   style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/ https://fonts.googleapis.com; 
+                   font-src 'self' data: https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/ https://fonts.gstatic.com; 
+                   script-src 'self' 'unsafe-inline' https://www.gstatic.com/firebasejs/;">
+    
+    <meta name="description" content="Plan your dream wedding with Wedding Planner. Find top vendors, venues, and more to make your special day unforgettable.">
+    <meta name="keywords" content="wedding planner, wedding vendors, wedding venues, wedding photography, wedding catering">
+    <meta name="author" content="Tom Mulungi">
+    <title>Wedding Planner | Your Dream Wedding Starts Here</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <header id="header">
+        <div class="logo">
+            <i class="fas fa-ring"></i>
+            <h1>Wedding Planner</h1>
+        </div>
+        <nav aria-label="Main Navigation">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul>
+                <li><a href="index.html" aria-current="page">Home</a></li>
+                <li><a href="pages/vendors.html">Vendors</a></li>
+                <li><a href="pages/admin add.html">Admin</a></li>
+                <li><a href="pages/aboutUs.html">AboutUs</a></li>
+                <li><a href="pages/login.html">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Carousel -->
+    <section id="hero" aria-label="Hero Carousel">
+        <div class="carousel">
+            <div class="carousel-slide active">
+                <img src="assets/edit.jpg" alt="A beautifully gowns and suits" loading="lazy">
+                <div class="carousel-caption">
+                    <h2>Your Dream Wedding Starts Here</h2>
+                    <p>Find the best vendors and plan your wedding with ease.</p>
+                    <a href="pages/vendors.html" class="button">Find Vendors</a>
+                </div>
+            </div>
+            <div class="carousel-slide">
+                <img src="assets/cake5.jpg" alt="A beautifully decorated wedding cake" loading="lazy">
+                <div class="carousel-caption">
+                    <h2>Exquisite Wedding Cakes</h2>
+                    <p>Delight your guests with stunning and delicious wedding cakes.</p>
+                    <a href="pages/vendors.html" class="button">Explore Cakes</a>
+                </div>
+            </div>
+            <div class="carousel-slide">
+                <img src="assets/decor4.jpg" alt="A beautiful wedding venue" loading="lazy">
+                <div class="carousel-caption">
+                    <h2>Featured Venues</h2>
+                    <p>Discover the most beautiful venues for your special day.</p>
+                    <a href="pages/venues.html" class="button">Explore Venues</a>
+                </div>
+            </div>
+            <div class="carousel-controls">
+                <div class="carousel-dot active" data-index="0"></div>
+                <div class="carousel-dot" data-index="1"></div>
+                <div class="carousel-dot" data-index="2"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main id="main">
+        <!-- Vendor Categories -->
+        <section class="categories">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Find Your Perfect Wedding Vendors</h2>
+                    <p>Browse our curated selection of wedding professionals to make your special day perfect</p>
+                </div>
+                <div class="categories-grid">
+                    <!-- Venues -->
+                    <div class="category-card premium">
+                        <img src="assets/venues.jpg" alt="Wedding venues" loading="lazy">
+                        <h3>Venues</h3>
+                        <p>Discover the most beautiful venues for your special day.</p>
+                        <a href="pages/vendors.html" class="button">View More</a>
+                    </div>
+                    
+                    <!-- Photography -->
+                    <div class="category-card">
+                        <img src="assets/camera2.jpg" alt="Wedding photography" loading="lazy">
+                        <h3>Photography</h3>
+                        <p>Capture your special moments with our top-rated photographers.</p>
+                        <a href="pages/vendors.html" class="button">View More</a>
+                    </div>
+                    
+                    <!-- Catering -->
+                    <div class="category-card premium">
+                        <img src="assets/catering6.jpg" alt="Wedding catering" loading="lazy">
+                        <h3>Catering</h3>
+                        <p>Savor the flavors with our exceptional catering services.</p>
+                        <a href="pages/vendors.html" class="button">View More</a>
+                    </div>
+                    
+                    <!-- Florists -->
+                    <div class="category-card">
+                        <img src="assets/florists.jpg" alt="Wedding flowers" loading="lazy">
+                        <h3>Decor</h3>
+                        <p>Create stunning floral arrangements for your wedding.</p>
+                        <a href="pages/vendors.html" class="button">View More</a>
+                    </div>
+                    
+                    <!-- Entertainment -->
+                    <div class="category-card premium">
+                        <img src="assets/ent.JPG" alt="Wedding music" loading="lazy">
+                        <h3>Entertainment</h3>
+                        <p>Keep your guests entertained with live music and DJs.</p>
+                        <a href="pages/vendors.html" class="button">View More</a>
+                    </div>
+                    
+                    <!-- Wedding Attire -->
+                    <div class="category-card">
+                        <img src="assets/gown.jpg" alt="Wedding attire" loading="lazy">
+                        <h3>Wedding Attire</h3>
+                        <p>Find the perfect wedding dress, suits, and accessories.</p>
+                        <a href="pages/vendors.html" class="button">View More</a>
+                    </div>
+                    
+                    <!-- Beauty & Hair -->
+                    <div class="category-card">
+                        <img src="assets/salon.jpg" alt="Wedding beauty" loading="lazy">
+                        <h3>Beauty & Hair</h3>
+                        <p>Look your best with professional makeup and hairstyling.</p>
+                        <a href="pages/vendors.html" class="button">View More</a>
+                    </div>
+                    
+                    <!-- Wedding Cakes -->
+                    <div class="category-card premium">
+                        <img src="assets/cake5.jpg" alt="Wedding cakes" loading="lazy">
+                        <h3>Wedding Cakes</h3>
+                        <p>Delight with beautiful and delicious wedding cakes.</p>
+                        <a href="pages/vendors.html" class="button">View More</a>
+                    </div>
+                    
+                    <!-- Transportation -->
+                    <div class="category-card">
+                        <img src="assets/cars.jpg" alt="Wedding transportation" loading="lazy">
+                        <h3>Transportation</h3>
+                        <p>Arrive in style with luxury wedding cars and limousines.</p>
+                        <a href="pages/vendors.html" class="button">View More</a>
+                    </div>
+                    
+                    <!-- Invitations -->
+                    <div class="category-card">
+                        <img src="assets/cards.jpg" alt="Wedding invitations" loading="lazy">
+                        <h3>Invitations</h3>
+                        <p>Beautiful stationery and wedding invitations for your guests.</p>
+                        <a href="pages/vendors.html" class="button">View More</a>
+                    </div>
+                    
+                    <!-- Wedding Planners -->
+                    <div class="category-card premium">
+                        <img src="assets/planner.jpg" alt="Wedding planners" loading="lazy">
+                        <h3>Wedding Planners</h3>
+                        <p>Professional coordination to make your day stress-free.</p>
+                        <a href="pages/vendors.html" class="button">View More</a>
+                    </div>
+                    
+                    <!-- Jewelry -->
+                    <div class="category-card">
+                        <img src="assets/ring.jpg" alt="Wedding jewelry" loading="lazy">
+                        <h3>Jewelry</h3>
+                        <p>Find the perfect wedding rings and accessories.</p>
+                        <a href="pages/vendors.html" class="button">View More</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Vendors -->
+        <section class="featured-vendors">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Featured Wedding Professionals</h2>
+                    <p>Meet some of our top-rated vendors ready to make your wedding dreams come true</p>
+                </div>
+                <div class="vendors-grid">
+                    <div class="vendor-card premium">
+                        <div class="vendor-header">
+                            <div class="vendor-avatar">SL</div>
+                            <div class="vendor-info">
+                                <h3>Studio Luxe Photography</h3>
+                                <p>Premium Wedding Photographers</p>
+                            </div>
+                            <div class="vendor-badge">FEATURED</div>
+                        </div>
+                        <img src="assets/photography.jpg" alt="Studio Luxe Photography" class="vendor-image">
+                        <div class="vendor-details">
+                            <p>Capturing timeless moments with a creative and personalized approach. Specializing in elegant wedding photography.</p>
+                            <div class="vendor-stats">
+                                <div class="stat">
+                                    <div class="stat-value">4.9</div>
+                                    <div class="stat-label">Rating</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">250+</div>
+                                    <div class="stat-label">Weddings</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">5</div>
+                                    <div class="stat-label">Years</div>
+                                </div>
+                            </div>
+                            <a href="pages/vendor-profile.html" class="button">View Profile</a>
+                        </div>
+                    </div>
+                    <div class="vendor-card">
+                        <div class="vendor-header">
+                            <div class="vendor-avatar">GC</div>
+                            <div class="vendor-info">
+                                <h3>Gourmet Celebrations</h3>
+                                <p>Wedding Catering Specialists</p>
+                            </div>
+                        </div>
+                        <img src="assets/catering.jpg" alt="Gourmet Celebrations" class="vendor-image">
+                        <div class="vendor-details">
+                            <p>Creating unforgettable culinary experiences with locally sourced ingredients and custom menu options.</p>
+                            <div class="vendor-stats">
+                                <div class="stat">
+                                    <div class="stat-value">4.8</div>
+                                    <div class="stat-label">Rating</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">180+</div>
+                                    <div class="stat-label">Events</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">3</div>
+                                    <div class="stat-label">Years</div>
+                                </div>
+                            </div>
+                            <a href="pages/vendor-profile.html" class="button">View Profile</a>
+                        </div>
+                    </div>
+                    <div class="vendor-card premium">
+                        <div class="vendor-header">
+                            <div class="vendor-avatar">BB</div>
+                            <div class="vendor-info">
+                                <h3>Blissful Blooms</h3>
+                                <p>Floral Design Studio</p>
+                            </div>
+                            <div class="vendor-badge">FEATURED</div>
+                        </div>
+                        <img src="assets/florists.jpg" alt="Blissful Blooms" class="vendor-image">
+                        <div class="vendor-details">
+                            <p>Transforming venues with exquisite floral arrangements that capture the essence of your love story.</p>
+                            <div class="vendor-stats">
+                                <div class="stat">
+                                    <div class="stat-value">4.9</div>
+                                    <div class="stat-label">Rating</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">300+</div>
+                                    <div class="stat-label">Events</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">7</div>
+                                    <div class="stat-label">Years</div>
+                                </div>
+                            </div>
+                            <a href="pages/vendor-profile.html" class="button">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section class="how-it-works">
+            <div class="container">
+                <div class="section-title">
+                    <h2>How It Works</h2>
+                    <p>Planning your dream wedding has never been easier</p>
+                </div>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>Browse Vendors</h3>
+                        <p>Explore our curated directory of wedding professionals across all categories.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h3>Compare & Select</h3>
+                        <p>Read reviews, view portfolios, and compare options to find your perfect match.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <h3>Book & Plan</h3>
+                        <p>Contact vendors directly and use our tools to organize your wedding details.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter Section -->
+        <section id="newsletter">
+            <h2>Get Wedding Planning Tips & Inspiration</h2>
+            <p>Subscribe to our newsletter for the latest trends, vendor spotlights, and exclusive offers.</p>
+            <form id="newsletter-form" action="#" method="post">
+                <input type="email" placeholder="Enter your email" required>
+                <button type="submit">Subscribe</button>
+            </form>
+        </section>
+    </main>
+
+    <!-- Footer Section -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Wedding Planner</h3>
+                    <p>Your trusted partner in creating the wedding of your dreams. We connect you with the best vendors and provide expert planning advice.</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Follow us on Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="Follow us on Pinterest"><i class="fab fa-pinterest-p"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="pages/vendors.html">Vendors</a></li>
+                        <li><a href="pages/venues.html">Venues</a></li>
+                        <li><a href="pages/inspiration.html">Inspiration</a></li>
+                        <li><a href="pages/login.html">Login</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Vendor Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">List Your Business</a></li>
+                        <li><a href="#">Premium Marketing</a></li>
+                        <li><a href="#">Advertising Options</a></li>
+                        <li><a href="#">Vendor Dashboard</a></li>
+                        <li><a href="#">Support Center</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> ntinda semawata rd</p>
+                    <p><i class="fas fa-phone"></i> +256 772 566 375</p>
+                    <p><i class="fas fa-envelope"></i> tom.mulungi@gmail.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="copyright">&copy; 2025 Wedding Planner. All rights reserved. Website created by Tom Mulungi.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button id="back-to-top" aria-label="Back to Top"><i class="fas fa-chevron-up"></i></button>
+
+    <script src="script.js"></script>
+</body>
+</html>

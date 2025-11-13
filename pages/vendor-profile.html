@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Updated CSP Policy -->
+    <meta http-equiv="Content-Security-Policy" 
+          content="default-src 'self'; 
+                   connect-src 'self' https://firestore.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://wedding-planner-39b5b.firebaseio.com;
+                   img-src 'self' data: blob: https:; 
+                   style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/ https://fonts.googleapis.com; 
+                   font-src 'self' data: https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/ https://fonts.gstatic.com; 
+                   script-src 'self' 'unsafe-inline' https://www.gstatic.com/firebasejs/;">
+    
+    <title>Vendor Profile - Wedding Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Modern CSS Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6b5b95;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 1.5rem;
+        }
+
+        .back-button {
+            background: #6b5b95;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-button:hover {
+            background: #5a4a7d;
+            transform: translateY(-1px);
+        }
+
+        #vendor-profile {
+            max-width: 1200px;
+            margin: 100px auto 40px;
+            padding: 0 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            color: #666;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #6b5b95;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .error-message i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #dc3545;
+        }
+
+        .vendor-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: none;
+        }
+
+        .vendor-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #6b5b95, #4a6b88);
+            color: white;
+        }
+
+        .vendor-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .vendor-info {
+            flex: 1;
+        }
+
+        .vendor-info h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .vendor-category {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .vendor-location {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .vendor-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+            display: inline-block;
+        }
+
+        .vendor-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+            background: #f8f9fa;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #6b5b95;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.2rem;
+        }
+
+        .carousel {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+        }
+
+        .carousel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .carousel img.active {
+            opacity: 1;
+        }
+
+        .carousel-nav {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .carousel-nav button {
+            background: rgba(255, 255, 255, 0.7);
+            border: none;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-nav button.active {
+            background: #6b5b95;
+            transform: scale(1.2);
+        }
+
+        .vendor-details {
+            padding: 2rem;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section h3 {
+            color: #6b5b95;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .section p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .contact-item i {
+            color: #6b5b95;
+            font-size: 1.1rem;
+            width: 20px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: #6b5b95;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: #5a4a7d;
+            transform: translateY(-2px);
+        }
+
+        .reviews-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .review {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #6b5b95;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .reviewer-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .review-rating {
+            color: #ffc107;
+        }
+
+        .review-content {
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .faq-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .faq-item {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .faq-answer {
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .call-to-action {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #6b5b95, #4a6b88);
+            color: white;
+        }
+
+        .cta-button {
+            background: white;
+            color: #6b5b95;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .vendor-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .vendor-logo {
+                width: 100px;
+                height: 100px;
+            }
+
+            .vendor-info h1 {
+                font-size: 1.8rem;
+            }
+
+            .vendor-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .carousel {
+                height: 300px;
+            }
+
+            .contact-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../index.html" class="logo">
+                <i class="fas fa-ring"></i>
+                <span>Wedding Planner</span>
+            </a>
+            <button class="back-button" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"></i> Back to Vendors
+            </button>
+        </div>
+    </header>
+
+    <div id="vendor-profile">
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading vendor profile...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-message" class="error-message" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Vendor Not Found</h3>
+            <p>Sorry, we couldn't find the vendor you're looking for.</p>
+            <button class="back-button" onclick="window.history.back()" style="margin-top: 1rem;">
+                <i class="fas fa-arrow-left"></i> Back to Vendors
+            </button>
+        </div>
+
+        <!-- Vendor Content -->
+        <div id="vendor-content" class="vendor-content">
+            <!-- Vendor Header -->
+            <div class="vendor-header">
+                <img id="vendor-logo" class="vendor-logo" src="../assets/placeholder.jpg" alt="Vendor Logo">
+                <div class="vendor-info">
+                    <h1 id="vendor-name">Vendor Name</h1>
+                    <div class="vendor-category" id="vendor-category">Category</div>
+                    <div class="vendor-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span id="vendor-location">Location</span>
+                    </div>
+                    <div class="vendor-badge" id="vendor-badge">FEATURED VENDOR</div>
+                </div>
+            </div>
+
+            <!-- Vendor Stats -->
+            <div class="vendor-stats">
+                <div class="stat">
+                    <div class="stat-value" id="vendor-rating">4.8</div>
+                    <div class="stat-label">Rating</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="vendor-experience">5+</div>
+                    <div class="stat-label">Years Experience</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="vendor-price">$$$</div>
+                    <div class="stat-label">Price Range</div>
+                </div>
+            </div>
+
+            <!-- Image Carousel -->
+            <div class="carousel">
+                <img id="carousel-img-1" src="../assets/placeholder.jpg" alt="Vendor Work" class="active">
+                <img id="carousel-img-2" src="../assets/placeholder.jpg" alt="Vendor Work">
+                <img id="carousel-img-3" src="../assets/placeholder.jpg" alt="Vendor Work">
+                <div class="carousel-nav">
+                    <button class="active" data-index="0"></button>
+                    <button data-index="1"></button>
+                    <button data-index="2"></button>
+                </div>
+            </div>
+
+            <!-- Vendor Details -->
+            <div class="vendor-details">
+                <!-- About Section -->
+                <div class="section">
+                    <h3>About Us</h3>
+                    <p id="vendor-description">Loading vendor description...</p>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="section">
+                    <h3>Contact Information</h3>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span id="vendor-phone">Loading...</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span id="vendor-email">Loading...</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-globe"></i>
+                            <span id="vendor-website">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="social-links">
+                        <a href="#" id="social-facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" id="social-instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" id="social-twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+
+                <!-- Services -->
+                <div class="section">
+                    <h3>Services</h3>
+                    <p id="vendor-services">Loading services information...</p>
+                </div>
+
+                <!-- Customer Reviews -->
+                <div class="section">
+                    <h3>Customer Reviews</h3>
+                    <div class="reviews-grid">
+                        <div class="review">
+                            <div class="review-header">
+                                <div class="reviewer-name">Sarah M.</div>
+                                <div class="review-rating">★★★★★</div>
+                            </div>
+                            <div class="review-content">
+                                Amazing service and attention to detail! Highly recommend for any wedding.
+                            </div>
+                        </div>
+                        <div class="review">
+                            <div class="review-header">
+                                <div class="reviewer-name">John D.</div>
+                                <div class="review-rating">★★★★☆</div>
+                            </div>
+                            <div class="review-content">
+                                Professional and reliable. Made our special day even more memorable.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQs -->
+                <div class="section">
+                    <h3>Frequently Asked Questions</h3>
+                    <div class="faq-grid">
+                        <div class="faq-item">
+                            <div class="faq-question">What services do you offer?</div>
+                            <div class="faq-answer" id="faq-services">Loading services information...</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">What is your pricing structure?</div>
+                            <div class="faq-answer" id="faq-pricing">Loading pricing information...</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">Do you offer custom packages?</div>
+                            <div class="faq-answer">Yes, we offer custom packages tailored to your specific needs and budget.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div class="call-to-action">
+                <h3>Ready to Make Your Dream Wedding a Reality?</h3>
+                <p>Contact this vendor today to discuss your special day</p>
+                <button class="cta-button" onclick="contactVendor()">
+                    <i class="fas fa-calendar-check"></i> Book Consultation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase Initialization and Configuration
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdV0sWvBVy565Xpgqayxc7SBrc8uDtcXQ",
+            authDomain: "wedding-planner-39b5b.firebaseapp.com",
+            projectId: "wedding-planner-39b5b",
+            storageBucket: "wedding-planner-39b5b.appspot.com",
+            messagingSenderId: "266193524534",
+            appId: "1:266193524534:web:b5266631f8052d65704597"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Get vendor ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const vendorId = urlParams.get('id');
+
+        console.log("Vendor ID from URL:", vendorId);
+
+        // DOM Elements
+        const loadingElement = document.getElementById('loading');
+        const errorElement = document.getElementById('error-message');
+        const vendorContent = document.getElementById('vendor-content');
+
+        if (!vendorId) {
+            showError("No vendor ID provided in the URL.");
+        }
+
+        async function fetchVendorData() {
+            try {
+                console.log("Fetching vendor data for ID:", vendorId);
+                
+                const vendorRef = doc(db, "vendors", vendorId);
+                const vendorSnap = await getDoc(vendorRef);
+
+                if (vendorSnap.exists()) {
+                    const vendorData = vendorSnap.data();
+                    console.log("Fetched Vendor Data:", vendorData);
+
+                    // Hide loading, show content
+                    loadingElement.style.display = 'none';
+                    vendorContent.style.display = 'block';
+
+                    // POPULATE VENDOR DATA - MAPPING ADMIN FIELDS
+                    document.getElementById('vendor-name').textContent = vendorData.name || 'Unknown Vendor';
+                    document.getElementById('vendor-category').textContent = vendorData.category || 'Wedding Services';
+                    
+                    // Use phone as location (from admin panel)
+                    document.getElementById('vendor-location').textContent = vendorData.phone || vendorData.location || 'Contact for location';
+                    
+                    // Use email as contact email
+                    document.getElementById('vendor-email').textContent = vendorData.email || 'Not provided';
+                    document.getElementById('vendor-phone').textContent = vendorData.phone || 'Not provided';
+                    document.getElementById('vendor-website').innerHTML = vendorData.website ? 
+                        `<a href="${vendorData.website}" target="_blank">${vendorData.website}</a>` : 'Not provided';
+
+                    // Description
+                    document.getElementById('vendor-description').textContent = vendorData.description || 'No description available.';
+
+                    // Services (based on category)
+                    document.getElementById('vendor-services').textContent = getServicesFromCategory(vendorData.category);
+                    document.getElementById('faq-services').textContent = `We specialize in ${vendorData.category || 'wedding services'} with professional expertise and attention to detail.`;
+                    document.getElementById('faq-pricing').textContent = `Our pricing is ${formatPriceRange(vendorData.price) || 'competitive and varies'} based on your specific requirements.`;
+
+                    // Stats
+                    document.getElementById('vendor-rating').textContent = vendorData.rating || '4.5';
+                    document.getElementById('vendor-experience').textContent = getExperienceFromData(vendorData);
+                    document.getElementById('vendor-price').textContent = formatPriceRange(vendorData.price) || '$$$';
+
+                    // Images
+                    if (vendorData.logoUrl) {
+                        document.getElementById('vendor-logo').src = vendorData.logoUrl;
+                    }
+
+                    // Update carousel with gallery images
+                    updateCarouselImages(vendorData.gallery);
+
+                    // Show featured badge for paid vendors
+                    if (vendorData.status === 'paid' || vendorData.isPremium) {
+                        document.getElementById('vendor-badge').style.display = 'inline-block';
+                    } else {
+                        document.getElementById('vendor-badge').style.display = 'none';
+                    }
+
+                } else {
+                    console.error("Vendor not found in database!");
+                    showError("Vendor not found. Please check the vendor ID and try again.");
+                }
+            } catch (error) {
+                console.error("Error fetching vendor data: ", error);
+                showError("Failed to load vendor data. Please try again later.");
+            }
+        }
+
+        // Helper function to get services from category
+        function getServicesFromCategory(category) {
+            const services = {
+                'Photography': 'Professional wedding photography, engagement sessions, photo albums, digital packages',
+                'Catering': 'Custom wedding menus, tasting sessions, full-service catering, bar services',
+                'Venue': 'Wedding venue rental, event planning, setup and cleanup services',
+                'Florist': 'Wedding bouquets, centerpieces, ceremony arrangements, floral decorations',
+                'Music': 'Live music, DJ services, sound systems, ceremony music, reception entertainment',
+                'Cake': 'Custom wedding cakes, dessert tables, cake tasting, delivery and setup'
+            };
+            return services[category] || 'Professional wedding services tailored to make your special day unforgettable';
+        }
+
+        // Helper function to format price range
+        function formatPriceRange(price) {
+            if (!price) return null;
+            
+            const priceNum = parseFloat(price);
+            if (priceNum < 100) return '$';
+            if (priceNum < 500) return '$$';
+            if (priceNum < 1000) return '$$$';
+            return '$$$$';
+        }
+
+        // Helper function to get experience information
+        function getExperienceFromData(vendorData) {
+            return vendorData.experience || '5+';
+        }
+
+        // Update carousel images
+        function updateCarouselImages(gallery) {
+            if (gallery && gallery.length > 0) {
+                // Use gallery images
+                for (let i = 0; i < 3; i++) {
+                    const imgElement = document.getElementById(`carousel-img-${i + 1}`);
+                    if (gallery[i]) {
+                        imgElement.src = gallery[i];
+                        imgElement.alt = 'Vendor Portfolio';
+                    }
+                }
+            } else {
+                // Use category-based placeholder images
+                const category = document.getElementById('vendor-category').textContent.toLowerCase();
+                for (let i = 1; i <= 3; i++) {
+                    const imgElement = document.getElementById(`carousel-img-${i}`);
+                    imgElement.src = `../assets/${category}${i}.jpg`;
+                    imgElement.onerror = function() {
+                        this.src = '../assets/placeholder.jpg';
+                    };
+                }
+            }
+        }
+
+        function showError(message) {
+            loadingElement.style.display = 'none';
+            errorElement.style.display = 'block';
+            errorElement.querySelector('p').textContent = message;
+            console.error(message);
+        }
+
+        // Carousel Functionality
+        function initializeCarousel() {
+            const carouselImages = document.querySelectorAll('.carousel img');
+            const carouselNav = document.querySelectorAll('.carousel-nav button');
+            let currentIndex = 0;
+
+            function showImage(index) {
+                carouselImages.forEach((img, i) => {
+                    img.classList.toggle('active', i === index);
+                });
+                carouselNav.forEach((btn, i) => {
+                    btn.classList.toggle('active', i === index);
+                });
+            }
+
+            function nextImage() {
+                currentIndex = (currentIndex + 1) % carouselImages.length;
+                showImage(currentIndex);
+            }
+
+            carouselNav.forEach((btn, index) => {
+                btn.addEventListener('click', () => {
+                    currentIndex = index;
+                    showImage(currentIndex);
+                });
+            });
+
+            // Auto-slide every 5 seconds
+            setInterval(nextImage, 5000);
+        }
+
+        // Contact vendor function
+        function contactVendor() {
+            const vendorName = document.getElementById('vendor-name').textContent;
+            const vendorPhone = document.getElementById('vendor-phone').textContent;
+            const vendorEmail = document.getElementById('vendor-email').textContent;
+            
+            alert(`Contacting ${vendorName}...\n\nPhone: ${vendorPhone}\nEmail: ${vendorEmail}\n\nYou can reach out to them directly to discuss your wedding needs!`);
+        }
+
+        // Load Vendor Data When the Page Loads
+        document.addEventListener('DOMContentLoaded', () => {
+            if (vendorId) {
+                fetchVendorData();
+                initializeCarousel();
+            }
+        });
+    </script>
+</body>
+</html>

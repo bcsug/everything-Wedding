@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Wedding Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #6b5b95 0%, #4a6b88 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #6b5b95, #4a6b88);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: #6b5b95;
+            margin-bottom: 10px;
+        }
+
+        .logo h1 {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .user-type-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #6b5b95, #4a6b88);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #6b5b95;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(107, 91, 149, 0.1);
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            background: linear-gradient(135deg, #6b5b95, #4a6b88);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(107, 91, 149, 0.3);
+        }
+
+        .login-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+            padding: 10px;
+            background: #f8d7da;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+            padding: 10px;
+            background: #d4edda;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+
+        .loading-message {
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .forgot-password a {
+            color: #6b5b95;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 25px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .signup-link a {
+            color: #6b5b95;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        .demo-accounts {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #6b5b95;
+        }
+
+        .demo-accounts h4 {
+            color: #333;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .demo-account {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .demo-account:last-child {
+            border-bottom: none;
+        }
+
+        .demo-account button {
+            background: #6b5b95;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .demo-account button:hover {
+            background: #5a4a7d;
+            transform: translateY(-1px);
+        }
+
+        .verification-info {
+            background: #e7f3ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #4a6b88;
+        }
+
+        .verification-info h4 {
+            color: #333;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .verification-info p {
+            color: #555;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+        }
+
+        /* Animation for form elements */
+        .form-group {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <i class="fas fa-ring"></i>
+            <h1>Wedding Planner</h1>
+        </div>
+
+        <h2>Welcome Back!</h2>
+        <p class="subtitle">Sign in to continue your wedding planning journey</p>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-container">
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                    <button type="button" class="toggle-password" id="toggle-password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="error-message" id="error-message"></div>
+            <div class="success-message" id="success-message"></div>
+            <div class="loading-message" id="loading-message">
+                <i class="fas fa-spinner fa-spin"></i> Signing you in...
+            </div>
+
+            <button type="submit" class="login-button" id="login-button">
+                Sign In
+            </button>
+
+            <div class="forgot-password">
+                <a href="forgot-password.html">Forgot your password?</a>
+            </div>
+
+            <p class="signup-link">
+                Don't have an account? <a href="signup.html">Create one here</a>
+            </p>
+
+            <!-- Demo Accounts for Testing -->
+            <div class="demo-accounts">
+                <h4>Demo Accounts (for testing):</h4>
+                <div class="demo-account">
+                    <span>Couple Account</span>
+                    <button onclick="fillDemoCredentials('couple@demo.com', 'demo123')">Use</button>
+                </div>
+                <div class="demo-account">
+                    <span>Vendor Account</span>
+                    <button onclick="fillDemoCredentials('vendor@demo.com', 'demo123')">Use</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script type="module">
+        // Import Firebase SDK modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword,
+            sendEmailVerification,
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc 
+        } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdV0sWvBVy565Xpgqayxc7SBrc8uDtcXQ",
+            authDomain: "wedding-planner-39b5b.firebaseapp.com",
+            projectId: "wedding-planner-39b5b",
+            storageBucket: "wedding-planner-39b5b.appspot.com",
+            messagingSenderId: "266193524534",
+            appId: "1:266193524534:web:b5266631f8052d65704597"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM Elements
+        const loginForm = document.getElementById('login-form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('toggle-password');
+        const loginButton = document.getElementById('login-button');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+        const loadingMessage = document.getElementById('loading-message');
+
+        // Toggle Password Visibility
+        togglePasswordBtn.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+
+        // Demo Account Filler
+        window.fillDemoCredentials = function(email, password) {
+            emailInput.value = email;
+            passwordInput.value = password;
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        };
+
+        // Login Handling
+        loginForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            // Reset messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            
+            // Show loading state
+            loginButton.disabled = true;
+            loadingMessage.style.display = 'block';
+
+            try {
+                // Sign in with Firebase Auth
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Check if email is verified
+                if (!user.emailVerified) {
+                    errorMessage.textContent = 'Please verify your email before logging in. Check your inbox (and spam folder) for the verification link.';
+                    errorMessage.style.display = 'block';
+                    
+                    // Show resend verification option
+                    showResendVerification(user);
+                    return;
+                }
+
+                // Get user profile from Firestore
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    
+                    // Show success message
+                    successMessage.textContent = `Welcome back! Redirecting to your ${userData.userType === 'vendor' ? 'vendor dashboard' : userData.userType === 'admin' ? 'admin dashboard' : 'wedding planning dashboard'}...`;
+                    successMessage.style.display = 'block';
+
+                    // Redirect based on user type
+                    setTimeout(() => {
+                        if (userData.userType === 'vendor') {
+                            window.location.href = 'vendor-dashboard.html';
+                        } else if (userData.userType === 'admin') {
+                            window.location.href = 'admin-dashboard.html';
+                        } else {
+                            window.location.href = 'client-dashboard.html';
+                        }
+                    }, 1500);
+
+                } else {
+                    // User profile doesn't exist (legacy account)
+                    successMessage.textContent = 'Welcome back! Redirecting to your wedding dashboard...';
+                    successMessage.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        window.location.href = 'client-dashboard.html';
+                    }, 1500);
+                }
+
+            } catch (error) {
+                console.error('Login error:', error);
+                
+                let errorMessageText = 'Login failed. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessageText = 'Please enter a valid email address.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessageText = 'No account found with this email address.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessageText = 'Incorrect password. Please try again.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessageText = 'Too many failed login attempts. Please try again later.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessageText = 'Network error. Please check your connection and try again.';
+                        break;
+                }
+
+                errorMessage.textContent = errorMessageText;
+                errorMessage.style.display = 'block';
+                
+            } finally {
+                loginButton.disabled = false;
+                loadingMessage.style.display = 'none';
+            }
+        });
+
+        // Show resend verification option
+        function showResendVerification(user) {
+            // Remove any existing resend button
+            const existingResend = document.getElementById('resend-verification-container');
+            if (existingResend) {
+                existingResend.remove();
+            }
+
+            const resendDiv = document.createElement('div');
+            resendDiv.id = 'resend-verification-container';
+            resendDiv.className = 'verification-info';
+            resendDiv.innerHTML = `
+                <h4>Email Verification Required</h4>
+                <p>We've sent a verification email to ${user.email}. Please check your inbox and spam folder.</p>
+                <button type="button" id="resend-verification" style="
+                    background: #6b5b95;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 0.9rem;
+                    margin-right: 10px;
+                ">Resend Verification Email</button>
+                <button type="button" id="sign-out-unverified" style="
+                    background: #dc3545;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 0.9rem;
+                ">Sign Out</button>
+            `;
+            
+            loginForm.appendChild(resendDiv);
+            
+            document.getElementById('resend-verification').addEventListener('click', async function() {
+                try {
+                    this.disabled = true;
+                    this.textContent = 'Sending...';
+                    
+                    await sendEmailVerification(user);
+                    
+                    successMessage.textContent = 'Verification email sent! Please check your inbox.';
+                    successMessage.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        this.disabled = false;
+                        this.textContent = 'Resend Verification Email';
+                    }, 3000);
+                    
+                } catch (error) {
+                    console.error('Error sending verification email:', error);
+                    errorMessage.textContent = 'Failed to send verification email. Please try again.';
+                    errorMessage.style.display = 'block';
+                    
+                    this.disabled = false;
+                    this.textContent = 'Resend Verification Email';
+                }
+            });
+            
+            document.getElementById('sign-out-unverified').addEventListener('click', async function() {
+                try {
+                    await signOut(auth);
+                    resendDiv.remove();
+                    errorMessage.style.display = 'none';
+                } catch (error) {
+                    console.error('Error signing out:', error);
+                }
+            });
+        }
+
+        // Check for URL parameters (for success messages)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('verified') === 'true') {
+            successMessage.textContent = 'Email verified successfully! You can now sign in.';
+            successMessage.style.display = 'block';
+        }
+
+        if (urlParams.get('reset') === 'true') {
+            successMessage.textContent = 'Password reset successfully! You can now sign in with your new password.';
+            successMessage.style.display = 'block';
+        }
+
+        if (urlParams.get('message') === 'verification_sent') {
+            successMessage.textContent = 'Verification email sent! Please check your inbox.';
+            successMessage.style.display = 'block';
+        }
+
+        if (urlParams.get('message') === 'signup_success') {
+            successMessage.textContent = 'Account created successfully! Please check your email for verification link.';
+            successMessage.style.display = 'block';
+        }
+
+        // Auto-focus email field
+        emailInput.focus();
+    </script>
+</body>
+</html>

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Wedding Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #6b5b95 0%, #4a6b88 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .signup-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .signup-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #6b5b95, #4a6b88);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: #6b5b95;
+            margin-bottom: 10px;
+        }
+
+        .logo h1 {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .user-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .user-type-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .user-type-card:hover {
+            border-color: #6b5b95;
+            transform: translateY(-2px);
+        }
+
+        .user-type-card.selected {
+            border-color: #6b5b95;
+            background: linear-gradient(135deg, #6b5b95, #4a6b88);
+            color: white;
+        }
+
+        .user-type-card.selected .type-icon {
+            color: white;
+        }
+
+        .user-type-card.selected .type-description {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .type-icon {
+            font-size: 2rem;
+            color: #6b5b95;
+            margin-bottom: 10px;
+        }
+
+        .type-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .type-description {
+            font-size: 0.8rem;
+            color: #666;
+            line-height: 1.3;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #6b5b95;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(107, 91, 149, 0.1);
+        }
+
+        .password-strength {
+            margin-top: 5px;
+            font-size: 0.8rem;
+        }
+
+        .strength-weak { color: #dc3545; }
+        .strength-medium { color: #ffc107; }
+        .strength-strong { color: #28a745; }
+
+        .signup-button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            background: linear-gradient(135deg, #6b5b95, #4a6b88);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .signup-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(107, 91, 149, 0.3);
+        }
+
+        .signup-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+            padding: 10px;
+            background: #f8d7da;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+            padding: 10px;
+            background: #d4edda;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+
+        .loading-message {
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 25px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .login-link a {
+            color: #6b5b95;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .terms {
+            font-size: 0.8rem;
+            color: #666;
+            text-align: center;
+            margin-top: 20px;
+            line-height: 1.4;
+        }
+
+        .terms a {
+            color: #6b5b95;
+            text-decoration: none;
+        }
+
+        .terms a:hover {
+            text-decoration: underline;
+        }
+
+        .verification-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .verification-success h3 {
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .verification-success p {
+            color: #155724;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 480px) {
+            .signup-container {
+                padding: 30px 20px;
+            }
+            
+            .user-type-selector {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <div class="logo">
+            <i class="fas fa-ring"></i>
+            <h1>Wedding Planner</h1>
+        </div>
+
+        <h2>Create Your Account</h2>
+        <p class="subtitle">Join thousands of couples and vendors creating unforgettable weddings</p>
+
+        <!-- User Type Selection -->
+        <div class="user-type-selector">
+            <div class="user-type-card" data-type="couple">
+                <div class="type-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="type-name">Planning a Wedding</div>
+                <div class="type-description">Find vendors, manage budget, plan your dream wedding</div>
+            </div>
+            <div class="user-type-card" data-type="vendor">
+                <div class="type-icon">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <div class="type-name">Vendor Business</div>
+                <div class="type-description">Showcase your services, connect with couples</div>
+            </div>
+        </div>
+
+        <form id="signup-form">
+            <input type="hidden" id="user-type" name="user-type" value="">
+
+            <div class="form-group">
+                <label for="signup-email">Email Address</label>
+                <input type="email" id="signup-email" placeholder="Enter your email" required>
+                <div class="error-message" id="email-error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="signup-password">Password</label>
+                <input type="password" id="signup-password" placeholder="Create a password" required>
+                <div class="password-strength" id="password-strength"></div>
+                <div class="error-message" id="password-error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="signup-password-confirm">Confirm Password</label>
+                <input type="password" id="signup-password-confirm" placeholder="Confirm your password" required>
+                <div class="error-message" id="confirm-error"></div>
+            </div>
+
+            <div class="error-message" id="general-error"></div>
+            <div class="success-message" id="success-message"></div>
+            <div class="loading-message" id="loading-message">
+                <i class="fas fa-spinner fa-spin"></i> Creating your account...
+            </div>
+
+            <button type="submit" class="signup-button" id="signup-button" disabled>
+                Create Account
+            </button>
+
+            <p class="login-link">
+                Already have an account? <a href="login.html">Sign In</a>
+            </p>
+
+            <p class="terms">
+                By creating an account, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+            </p>
+        </form>
+    </div>
+
+    <script type="module">
+        // Import Firebase SDK modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            sendEmailVerification,
+            updateProfile,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc 
+        } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdV0sWvBVy565Xpgqayxc7SBrc8uDtcXQ",
+            authDomain: "wedding-planner-39b5b.firebaseapp.com",
+            projectId: "wedding-planner-39b5b",
+            storageBucket: "wedding-planner-39b5b.appspot.com",
+            messagingSenderId: "266193524534",
+            appId: "1:266193524534:web:b5266631f8052d65704597"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM Elements
+        const userTypeCards = document.querySelectorAll('.user-type-card');
+        const userTypeInput = document.getElementById('user-type');
+        const signupForm = document.getElementById('signup-form');
+        const signupButton = document.getElementById('signup-button');
+        const generalError = document.getElementById('general-error');
+        const successMessage = document.getElementById('success-message');
+        const loadingMessage = document.getElementById('loading-message');
+
+        // User Type Selection
+        userTypeCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove selected class from all cards
+                userTypeCards.forEach(c => c.classList.remove('selected'));
+                // Add selected class to clicked card
+                card.classList.add('selected');
+                // Set the user type value
+                userTypeInput.value = card.dataset.type;
+                // Enable signup button
+                signupButton.disabled = false;
+            });
+        });
+
+        // Password Strength Checker
+        document.getElementById('signup-password').addEventListener('input', function() {
+            const password = this.value;
+            const strengthElement = document.getElementById('password-strength');
+            
+            if (password.length === 0) {
+                strengthElement.textContent = '';
+                return;
+            }
+
+            let strength = 'Weak';
+            let strengthClass = 'strength-weak';
+
+            if (password.length >= 8) {
+                const hasUpperCase = /[A-Z]/.test(password);
+                const hasLowerCase = /[a-z]/.test(password);
+                const hasNumbers = /\d/.test(password);
+                const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+                const requirementsMet = [hasUpperCase, hasLowerCase, hasNumbers, hasSpecialChar].filter(Boolean).length;
+
+                if (requirementsMet >= 3 && password.length >= 10) {
+                    strength = 'Strong';
+                    strengthClass = 'strength-strong';
+                } else if (requirementsMet >= 2) {
+                    strength = 'Medium';
+                    strengthClass = 'strength-medium';
+                }
+            }
+
+            strengthElement.textContent = `Password strength: ${strength}`;
+            strengthElement.className = `password-strength ${strengthClass}`;
+        });
+
+        // Form Validation
+        document.getElementById('signup-password-confirm').addEventListener('input', function() {
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = this.value;
+            const confirmError = document.getElementById('confirm-error');
+
+            if (confirmPassword && password !== confirmPassword) {
+                confirmError.textContent = 'Passwords do not match';
+                confirmError.style.display = 'block';
+            } else {
+                confirmError.style.display = 'none';
+            }
+        });
+
+        // Sign-Up Handling
+        signupForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const passwordConfirm = document.getElementById('signup-password-confirm').value;
+            const userType = userTypeInput.value;
+            
+            const emailError = document.getElementById('email-error');
+            const passwordError = document.getElementById('password-error');
+            const confirmError = document.getElementById('confirm-error');
+
+            // Reset messages
+            [generalError, emailError, passwordError, confirmError, successMessage].forEach(error => {
+                if (error) {
+                    error.style.display = 'none';
+                    error.textContent = '';
+                }
+            });
+
+            // Validation
+            let isValid = true;
+
+            if (!userType) {
+                generalError.textContent = 'Please select whether you are planning a wedding or are a vendor';
+                generalError.style.display = 'block';
+                isValid = false;
+            }
+
+            if (password !== passwordConfirm) {
+                confirmError.textContent = 'Passwords do not match';
+                confirmError.style.display = 'block';
+                isValid = false;
+            }
+
+            if (password.length < 6) {
+                passwordError.textContent = 'Password must be at least 6 characters long';
+                passwordError.style.display = 'block';
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            // Show loading state
+            signupButton.disabled = true;
+            loadingMessage.style.display = 'block';
+
+            try {
+                console.log("Creating user account...");
+                
+                // Create user in Firebase Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                console.log("User created:", user.uid);
+                
+                // Create user profile in Firestore
+                const userProfile = {
+                    email: email,
+                    userType: userType,
+                    displayName: userType === 'couple' ? 'Future Couple' : 'Vendor',
+                    createdAt: new Date().toISOString(),
+                    profileComplete: false,
+                    emailVerified: false
+                };
+
+                // Add vendor-specific fields if user is a vendor
+                if (userType === 'vendor') {
+                    userProfile.businessName = '';
+                    userProfile.category = '';
+                    userProfile.location = '';
+                    userProfile.vendorStatus = 'pending';
+                }
+
+                console.log("Saving user profile to Firestore...");
+                
+                // Save user profile to Firestore
+                await setDoc(doc(db, 'users', user.uid), userProfile);
+
+                console.log("User profile saved successfully");
+
+                // Update Firebase Auth profile
+                await updateProfile(user, {
+                    displayName: userType === 'couple' ? 'Future Couple' : 'Vendor'
+                });
+
+                console.log("Sending email verification...");
+                
+                // Send email verification
+                await sendEmailVerification(user);
+                
+                console.log("Email verification sent successfully");
+
+                // Sign out the user immediately after signup
+                await signOut(auth);
+                
+                // Show success message
+                successMessage.innerHTML = `
+                    <h3>Account Created Successfully!</h3>
+                    <p>A verification email has been sent to <strong>${email}</strong>.</p>
+                    <p>Please check your inbox (and spam folder) and click the verification link to activate your account.</p>
+                    <p><em>You must verify your email before you can log in.</em></p>
+                `;
+                successMessage.style.display = 'block';
+
+                // Clear form
+                signupForm.reset();
+                userTypeCards.forEach(card => card.classList.remove('selected'));
+                userTypeInput.value = '';
+                signupButton.disabled = true;
+
+                // Redirect to login page after delay
+                setTimeout(() => {
+                    window.location.href = 'login.html?message=signup_success';
+                }, 5000);
+
+            } catch (error) {
+                console.error('Signup error:', error);
+                
+                let errorMessage = 'Signup failed. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'An account with this email already exists.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Please enter a valid email address.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'Password is too weak. Please choose a stronger password.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage = 'Network error. Please check your connection and try again.';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMessage = 'Email/password accounts are not enabled. Please contact support.';
+                        break;
+                }
+
+                generalError.textContent = errorMessage;
+                generalError.style.display = 'block';
+            } finally {
+                signupButton.disabled = false;
+                loadingMessage.style.display = 'none';
+            }
+        });
+
+        // Enable form interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add subtle animation to form elements
+            const formElements = document.querySelectorAll('.form-group input, .user-type-card');
+            formElements.forEach((element, index) => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = `all 0.5s ease ${index * 0.1}s`;
+                
+                setTimeout(() => {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>
