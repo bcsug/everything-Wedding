@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💍</text></svg>">
+    
+    <meta name="description" content="Your Wedding Planning Dashboard - Manage your timeline, vendors and more">
+    <meta name="author" content="Tom Mulungi">
+    <title>My Wedding Dashboard | Wedding Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6b5b95;
+            --secondary-color: #4a6b88;
+            --accent-color: #ff6b8b;
+            --light-color: #f8f9fa;
+            --dark-color: #333;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f7fa;
+            color: var(--dark-color);
+        }
+
+        .dashboard {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .dashboard-header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+
+        .dashboard-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .user-welcome h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .wedding-date {
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-controls button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .nav-controls button:hover {
+            background: var(--secondary-color);
+        }
+
+        .dashboard-main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        .dashboard-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-header h3 {
+            color: var(--primary-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Countdown Styles */
+        .countdown-container {
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            grid-column: 1 / -1;
+        }
+
+        .countdown-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .countdown-unit {
+            text-align: center;
+        }
+
+        .countdown-value {
+            font-size: 2rem;
+            font-weight: bold;
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem;
+            border-radius: 10px;
+            min-width: 60px;
+        }
+
+        .countdown-label {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            opacity: 0.9;
+        }
+
+        /* Vendor Section */
+        .vendor-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .vendor-search-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: end;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+
+        .search-input, .filter-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .search-input:focus, .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: var(--secondary-color);
+        }
+
+        /* COMPACT TIPS SECTION - ONLY CHANGE */
+        .vendor-tips {
+            position: relative;
+            margin-top: 1.5rem;
+        }
+
+        .tips-toggle {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .tips-toggle:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .tips-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            z-index: 100;
+            border: 1px solid rgba(107, 91, 149, 0.1);
+            margin-top: 0.5rem;
+        }
+
+        .tips-dropdown.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tips-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .tip-note {
+            background: linear-gradient(135deg, #fff5f7, #fff0f3);
+            padding: 1rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-color);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 107, 139, 0.2);
+        }
+
+        .tip-note:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 139, 0.2);
+        }
+
+        .tip-note h5 {
+            margin: 0 0 0.5rem 0;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tip-note p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+            line-height: 1.4;
+        }
+
+        .tip-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            color: var(--secondary-color);
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 0.2rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .tip-close:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .vendor-results-container {
+            display: block;
+        }
+
+        .vendor-results {
+            min-height: 400px;
+        }
+
+        .results-counter {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light-color);
+        }
+
+        .results-count {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .view-all-btn {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .view-all-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Vendor Grid */
+        .vendors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .vendor-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .vendor-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .vendor-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .vendor-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .vendor-info {
+            flex: 1;
+        }
+
+        .vendor-info h4 {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+
+        .vendor-category {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+            margin: 0.3rem 0 0 0;
+            font-weight: 500;
+        }
+
+        .vendor-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0;
+            padding: 0.75rem;
+            background: var(--light-color);
+            border-radius: 8px;
+        }
+
+        .vendor-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.9rem;
+            color: #ffc107;
+            font-weight: 600;
+        }
+
+        .vendor-price {
+            font-size: 0.9rem;
+            color: var(--success-color);
+            font-weight: 700;
+        }
+
+        .vendor-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* Sidebar */
+        .dashboard-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Task List Styles */
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-checkbox {
+            margin-right: 1rem;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .task-due {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark-color);
+        }
+
+        .save-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .save-btn:hover {
+            background: var(--secondary-color);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-main {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .vendor-search-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .vendors-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-nav {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .nav-controls {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body class="dashboard">
+    <!-- Dashboard Header -->
+    <header class="dashboard-header">
+        <div class="dashboard-nav">
+            <div class="user-welcome">
+                <h1 id="welcome-message">Welcome! 💕</h1>
+                <div class="wedding-date" id="wedding-date-display">
+                    <i class="fas fa-calendar-alt"></i>
+                    Loading your wedding details...
+                </div>
+            </div>
+            <div class="nav-controls">
+                <button onclick="window.location.href='../index.html'">
+                    <i class="fas fa-home"></i> Home
+                </button>
+                <button onclick="openSettingsModal()">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
+                <button id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Content -->
+    <main class="dashboard-main">
+        <!-- Left Column - Main Content -->
+        <div class="dashboard-content">
+            <!-- Countdown -->
+            <div class="countdown-container">
+                <div class="countdown-title">
+                    <i class="fas fa-heart"></i> <span id="countdown-title">Countdown to Your Big Day</span>
+                </div>
+                <div class="countdown-timer" id="countdown-timer">
+                    <div class="countdown-unit">
+                        <div class="countdown-value" id="days">--</div>
+                        <div class="countdown-label">Days</div>
+                    </div>
+                    <div class="countdown-unit">
+                        <div class="countdown-value" id="hours">--</div>
+                        <div class="countdown-label">Hours</div>
+                    </div>
+                    <div class="countdown-unit">
+                        <div class="countdown-value" id="minutes">--</div>
+                        <div class="countdown-label">Minutes</div>
+                    </div>
+                    <div class="countdown-unit">
+                        <div class="countdown-value" id="seconds">--</div>
+                        <div class="countdown-label">Seconds</div>
+                    </div>
+                </div>
+                <p id="countdown-message">Loading your wedding date...</p>
+            </div>
+
+            <!-- Vendor Section -->
+            <div class="vendor-section">
+                <div class="card-header">
+                    <h3><i class="fas fa-search"></i> Find Your Perfect Vendors</h3>
+                    <div class="card-icon" onclick="window.location.href='vendors.html'">
+                        <i class="fas fa-external-link-alt"></i>
+                    </div>
+                </div>
+                
+                <!-- Search and Filters -->
+                <div class="vendor-search-container">
+                    <div class="form-group">
+                        <label>Search Vendors</label>
+                        <input type="text" id="vendor-search" class="search-input" placeholder="Search by name, service, or description...">
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="category-filter" class="filter-select">
+                            <option value="">All Categories</option>
+                            <option value="Photography">Photography</option>
+                            <option value="Catering">Catering</option>
+                            <option value="Venue">Venue</option>
+                            <option value="Florist">Florist</option>
+                            <option value="Planner">Wedding Planner</option>
+                            <option value="Music">Music & Entertainment</option>
+                            <option value="Cake">Wedding Cakes</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Beauty">Beauty & Hair</option>
+                            <option value="Attire">Wedding Attire</option>
+                            <option value="Jewelry">Jewelry</option>
+                        </select>
+                    </div>
+                    <button class="search-btn" onclick="filterVendors()">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+
+                <!-- Results and Compact Tips -->
+                <div class="vendor-results-container">
+                    <div class="vendor-results">
+                        <div class="results-counter">
+                            <span class="results-count" id="results-count">Loading vendors...</span>
+                            <a href="vendors.html" class="view-all-btn">
+                                <i class="fas fa-external-link-alt"></i> View All Vendors
+                            </a>
+                        </div>
+                        
+                        <div class="vendors-grid" id="vendors-container">
+                            <p style="text-align: center; color: var(--secondary-color); padding: 2rem;">
+                                Loading vendors...
+                            </p>
+                        </div>
+
+                        <!-- Compact Tips Section -->
+                        <div class="vendor-tips">
+                            <button class="tips-toggle" onclick="toggleTips()">
+                                <i class="fas fa-lightbulb"></i> Quick Tips
+                                <i class="fas fa-chevron-down" id="tips-icon" style="font-size: 0.7rem; margin-left: 0.3rem;"></i>
+                            </button>
+                            
+                            <div class="tips-dropdown" id="tipsDropdown">
+                                <div class="tips-grid">
+                                    <div class="tip-note">
+                                        <button class="tip-close" onclick="closeTip(this)">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        <h5>📅 Book Early</h5>
+                                        <p>Popular vendors get booked 6-12 months in advance, especially for peak wedding seasons.</p>
+                                    </div>
+                                    <div class="tip-note">
+                                        <button class="tip-close" onclick="closeTip(this)">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        <h5>⭐ Read Reviews</h5>
+                                        <p>Check multiple review platforms and ask for references from past clients.</p>
+                                    </div>
+                                    <div class="tip-note">
+                                        <button class="tip-close" onclick="closeTip(this)">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        <h5>💰 Compare Quotes</h5>
+                                        <p>Get at least 3 quotes for each service to ensure you're getting fair pricing.</p>
+                                    </div>
+                                    <div class="tip-note">
+                                        <button class="tip-close" onclick="closeTip(this)">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        <h5>📞 Check Availability</h5>
+                                        <p>Confirm vendor availability for your wedding date before falling in love with their work.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar & Tasks -->
+            <div class="dashboard-grid">
+                <!-- Wedding Calendar -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-calendar"></i> Wedding Calendar</h3>
+                        <div class="card-icon" onclick="openCalendarModal()">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <div id="calendar-container">
+                        <p style="text-align: center; color: var(--secondary-color); padding: 2rem;">
+                            Add events to your wedding calendar
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Task List -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-tasks"></i> Wedding Tasks</h3>
+                        <div class="card-icon" onclick="openTasksModal()">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="task-list" id="task-list">
+                        <p style="text-align: center; color: var(--secondary-color); padding: 1rem;">
+                            Add tasks to your wedding checklist
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Sidebar -->
+        <div class="dashboard-sidebar">
+            <!-- Wedding Details -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-info-circle"></i> Wedding Details</h3>
+                    <div class="card-icon" onclick="openSettingsModal()">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                </div>
+                <div id="wedding-details" style="line-height: 1.6;">
+                    <p><strong>Couple Names:</strong> Loading...</p>
+                    <p><strong>Date:</strong> Loading...</p>
+                    <p><strong>Time:</strong> Loading...</p>
+                    <p><strong>Venue:</strong> Loading...</p>
+                    <p><strong>Guests:</strong> Loading...</p>
+                    <p><strong>Theme:</strong> Loading...</p>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                </div>
+                <div id="recent-activity" style="line-height: 1.6; font-size: 0.9rem;">
+                    <p>Loading your activity...</p>
+                </div>
+            </div>
+
+            <!-- Favorite Vendors -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-heart"></i> Favorite Vendors</h3>
+                </div>
+                <div id="favorite-vendors" style="line-height: 1.6; font-size: 0.9rem;">
+                    <p>No favorite vendors yet</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Wedding Settings</h3>
+                <button class="close-modal" onclick="closeSettingsModal()">&times;</button>
+            </div>
+            <form id="wedding-settings-form">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" id="first-name" placeholder="Your first name" required>
+                </div>
+                <div class="form-group">
+                    <label>Couple Names</label>
+                    <input type="text" id="couple-names" placeholder="e.g., Sarah & Michael" required>
+                </div>
+                <div class="form-group">
+                    <label>Wedding Date</label>
+                    <input type="date" id="wedding-date" required>
+                </div>
+                <div class="form-group">
+                    <label>Wedding Time</label>
+                    <input type="time" id="wedding-time" required>
+                </div>
+                <div class="form-group">
+                    <label>Venue</label>
+                    <input type="text" id="wedding-venue" placeholder="Venue name">
+                </div>
+                <div class="form-group">
+                    <label>Number of Guests</label>
+                    <input type="number" id="guest-count" placeholder="150">
+                </div>
+                <div class="form-group">
+                    <label>Wedding Theme</label>
+                    <input type="text" id="wedding-theme" placeholder="e.g., Rustic Elegance">
+                </div>
+                <button type="submit" class="save-btn">Save Settings</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import Firebase SDK modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged,
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc,
+            collection,
+            getDocs,
+            updateDoc
+        } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdV0sWvBVy565Xpgqayxc7SBrc8uDtcXQ",
+            authDomain: "wedding-planner-39b5b.firebaseapp.com",
+            projectId: "wedding-planner-39b5b",
+            storageBucket: "wedding-planner-39b5b.appspot.com",
+            messagingSenderId: "266193524534",
+            appId: "1:266193524534:web:b5266631f8052d65704597"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Global variables
+        let currentUser = null;
+        let userData = {};
+        let allVendors = [];
+        let filteredVendors = [];
+
+        // Check authentication and load user data
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserData();
+                await loadVendors();
+                updateDashboard();
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Load user data from Firestore
+        async function loadUserData() {
+            try {
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                if (userDoc.exists()) {
+                    userData = userDoc.data();
+                    console.log("User data loaded:", userData);
+                } else {
+                    console.log("No user data found");
+                }
+            } catch (error) {
+                console.error("Error loading user data:", error);
+            }
+        }
+
+        // Load vendors from Firestore
+        async function loadVendors() {
+            try {
+                const vendorsCollection = collection(db, "vendors");
+                const querySnapshot = await getDocs(vendorsCollection);
+
+                allVendors = querySnapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        name: data.name || 'Vendor',
+                        category: data.category || 'General',
+                        description: data.description || 'Professional wedding services',
+                        location: data.location || data.phone || 'Contact for location',
+                        contact: data.email || data.contact || 'Contact vendor',
+                        priceRange: formatPriceRange(data.price) || 'Contact',
+                        rating: data.rating || '4.5',
+                        isPremium: data.status === 'paid' || data.isPremium || false,
+                        isApproved: data.isApproved !== false
+                    };
+                });
+
+                // Filter only approved vendors
+                allVendors = allVendors.filter(vendor => vendor.isApproved);
+                filteredVendors = [...allVendors];
+                
+                console.log(`Loaded ${allVendors.length} vendors`);
+            } catch (error) {
+                console.error("Error loading vendors:", error);
+            }
+        }
+
+        // Format price range
+        function formatPriceRange(price) {
+            if (!price) return null;
+            const priceNum = parseFloat(price);
+            if (priceNum < 100) return '$';
+            if (priceNum < 500) return '$$';
+            if (priceNum < 1000) return '$$$';
+            return '$$$$';
+        }
+
+        // Update the entire dashboard
+        function updateDashboard() {
+            updateWelcomeMessage();
+            updateWeddingDetails();
+            setupVendorFilters();
+            displayVendors();
+            updateRecentActivity();
+        }
+
+        // Update welcome message with first name
+        function updateWelcomeMessage() {
+            const firstName = userData.firstName || 'There';
+            document.getElementById('welcome-message').textContent = `Welcome, ${firstName}! 💕`;
+        }
+
+        // Update wedding details
+        function updateWeddingDetails() {
+            const weddingDate = userData.weddingDate ? new Date(userData.weddingDate) : null;
+            
+            if (weddingDate) {
+                const formattedDate = weddingDate.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                document.getElementById('wedding-date-display').innerHTML = 
+                    `<i class="fas fa-calendar-alt"></i> ${formattedDate}`;
+            }
+
+            document.getElementById('wedding-details').innerHTML = `
+                <p><strong>Couple Names:</strong> ${userData.coupleNames || 'Not set'}</p>
+                <p><strong>Date:</strong> ${weddingDate ? weddingDate.toLocaleDateString() : 'Not set'}</p>
+                <p><strong>Time:</strong> ${userData.weddingTime || 'Not set'}</p>
+                <p><strong>Venue:</strong> ${userData.venue || 'Not set'}</p>
+                <p><strong>Guests:</strong> ${userData.guestCount || '0'}</p>
+                <p><strong>Theme:</strong> ${userData.theme || 'Not set'}</p>
+            `;
+        }
+
+        // Setup vendor filters
+        function setupVendorFilters() {
+            // Add event listeners for dropdown filters
+            document.getElementById('category-filter').addEventListener('change', filterVendors);
+            
+            // Search functionality
+            document.getElementById('vendor-search').addEventListener('input', (e) => {
+                filterVendorsBySearch(e.target.value);
+            });
+        }
+
+        // Combined filter function
+        function filterVendors() {
+            const category = document.getElementById('category-filter').value;
+            const searchTerm = document.getElementById('vendor-search').value.toLowerCase();
+
+            filteredVendors = allVendors.filter(vendor => {
+                const matchesCategory = !category || vendor.category === category;
+                const matchesSearch = !searchTerm || 
+                    vendor.name.toLowerCase().includes(searchTerm) ||
+                    vendor.category.toLowerCase().includes(searchTerm) ||
+                    vendor.description.toLowerCase().includes(searchTerm);
+
+                return matchesCategory && matchesSearch;
+            });
+            
+            displayVendors();
+        }
+
+        // Filter vendors by search
+        function filterVendorsBySearch(searchTerm) {
+            const category = document.getElementById('category-filter').value;
+
+            filteredVendors = allVendors.filter(vendor => {
+                const matchesCategory = !category || vendor.category === category;
+                const matchesSearch = !searchTerm || 
+                    vendor.name.toLowerCase().includes(searchTerm) ||
+                    vendor.category.toLowerCase().includes(searchTerm) ||
+                    vendor.description.toLowerCase().includes(searchTerm);
+
+                return matchesCategory && matchesSearch;
+            });
+            
+            displayVendors();
+        }
+
+        // Display vendors in the grid
+        function displayVendors() {
+            const vendorsContainer = document.getElementById('vendors-container');
+            const resultsCount = document.getElementById('results-count');
+            const vendorsToShow = filteredVendors.slice(0, 6); // Show max 6 vendors
+
+            // Update results counter
+            resultsCount.textContent = `${filteredVendors.length} vendors found`;
+
+            if (vendorsToShow.length === 0) {
+                vendorsContainer.innerHTML = '<p style="text-align: center; color: var(--secondary-color); padding: 2rem; grid-column: 1 / -1;">No vendors found matching your criteria</p>';
+                return;
+            }
+
+            vendorsContainer.innerHTML = vendorsToShow.map(vendor => `
+                <div class="vendor-card">
+                    <div class="vendor-header">
+                        <div class="vendor-avatar">${getInitials(vendor.name)}</div>
+                        <div class="vendor-info">
+                            <h4>${vendor.name}</h4>
+                            <p class="vendor-category">${vendor.category}</p>
+                        </div>
+                    </div>
+                    <div class="vendor-stats">
+                        <div class="vendor-rating">
+                            <i class="fas fa-star"></i> ${vendor.rating}
+                        </div>
+                        <div class="vendor-price">${vendor.priceRange}</div>
+                    </div>
+                    <div class="vendor-actions">
+                        <button class="btn btn-primary" onclick="viewVendor('${vendor.id}')">View</button>
+                        <button class="btn btn-secondary" onclick="contactVendor('${vendor.id}')">Contact</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update recent activity
+        function updateRecentActivity() {
+            const activities = [];
+            
+            if (userData.firstName) {
+                activities.push(`Welcome back, ${userData.firstName}!`);
+            }
+            if (userData.weddingDate) {
+                activities.push('Wedding date is set');
+            }
+            if (allVendors.length > 0) {
+                activities.push(`${allVendors.length} vendors available`);
+            }
+
+            document.getElementById('recent-activity').innerHTML = 
+                activities.map(activity => `<p>${activity}</p>`).join('');
+        }
+
+        // Helper functions
+        function getInitials(name) {
+            return name.split(' ').map(word => word[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        // Countdown Timer
+        function updateCountdown() {
+            const weddingDate = userData.weddingDate;
+            if (!weddingDate) {
+                document.getElementById('countdown-message').textContent = 'Set your wedding date to start the countdown!';
+                return;
+            }
+
+            const weddingDateTime = new Date(weddingDate).getTime();
+            const now = new Date().getTime();
+            const distance = weddingDateTime - now;
+
+            if (distance < 0) {
+                document.getElementById('countdown-title').textContent = 'Wedding Day! 🎉';
+                document.getElementById('countdown-message').textContent = 'Congratulations on your wedding day!';
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            
+            document.getElementById('countdown-title').textContent = `Countdown to Your Big Day`;
+            document.getElementById('countdown-message').textContent = 'Your dream wedding is getting closer! 💖';
+        }
+
+        // Global functions for vendor interactions
+        window.viewVendor = function(vendorId) {
+            window.location.href = `vendor-profile.html?id=${vendorId}`;
+        };
+
+        window.contactVendor = function(vendorId) {
+            const vendor = allVendors.find(v => v.id === vendorId);
+            if (vendor) {
+                alert(`Contacting ${vendor.name}...\n\nEmail: ${vendor.contact}\n\nYou can reach out to them directly for more information!`);
+            }
+        };
+
+        // Modal Functions
+        function openSettingsModal() {
+            document.getElementById('settings-modal').style.display = 'flex';
+            document.getElementById('first-name').value = userData.firstName || '';
+            document.getElementById('couple-names').value = userData.coupleNames || '';
+            document.getElementById('wedding-date').value = userData.weddingDate || '';
+            document.getElementById('wedding-time').value = userData.weddingTime || '';
+            document.getElementById('wedding-venue').value = userData.venue || '';
+            document.getElementById('guest-count').value = userData.guestCount || '';
+            document.getElementById('wedding-theme').value = userData.theme || '';
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').style.display = 'none';
+        }
+
+        // Save wedding settings
+        document.getElementById('wedding-settings-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const updatedData = {
+                firstName: document.getElementById('first-name').value,
+                coupleNames: document.getElementById('couple-names').value,
+                weddingDate: document.getElementById('wedding-date').value,
+                weddingTime: document.getElementById('wedding-time').value,
+                venue: document.getElementById('wedding-venue').value,
+                guestCount: parseInt(document.getElementById('guest-count').value) || 0,
+                theme: document.getElementById('wedding-theme').value
+            };
+
+            try {
+                await updateDoc(doc(db, 'users', currentUser.uid), updatedData);
+                userData = { ...userData, ...updatedData };
+                saveUserData();
+                closeSettingsModal();
+                updateDashboard();
+            } catch (error) {
+                console.error("Error updating user data:", error);
+                alert("Error saving settings. Please try again.");
+            }
+        });
+
+        // Save user data to localStorage as backup
+        function saveUserData() {
+            localStorage.setItem('weddingUserData', JSON.stringify(userData));
+        }
+
+        // Load user data from localStorage
+        function loadLocalUserData() {
+            const savedData = localStorage.getItem('weddingUserData');
+            if (savedData) {
+                const localData = JSON.parse(savedData);
+                userData = { ...userData, ...localData };
+            }
+        }
+
+        // Logout functionality
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                signOut(auth).then(() => {
+                    window.location.href = 'login.html';
+                });
+            }
+        });
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLocalUserData();
+            setInterval(updateCountdown, 1000);
+            updateCountdown();
+        });
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            const settingsModal = document.getElementById('settings-modal');
+            if (event.target === settingsModal) {
+                closeSettingsModal();
+            }
+        });
+
+        // Placeholder functions for other modals
+        function openTasksModal() {
+            alert('Task management feature coming soon!');
+        }
+
+        function openGuestModal() {
+            alert('Guest list feature coming soon!');
+        }
+
+        function openCalendarModal() {
+            alert('Calendar feature coming soon!');
+        }
+    </script>
+
+    <script>
+        // Tips functionality - ONLY ADDITION
+        function toggleTips() {
+            const dropdown = document.getElementById('tipsDropdown');
+            const icon = document.getElementById('tips-icon');
+            
+            dropdown.classList.toggle('active');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+        }
+
+        function closeTip(button) {
+            const tipNote = button.closest('.tip-note');
+            tipNote.style.opacity = '0';
+            tipNote.style.transform = 'translateX(-10px)';
+            setTimeout(() => {
+                tipNote.remove();
+                // If no tips left, close the dropdown
+                if (document.querySelectorAll('.tip-note').length === 0) {
+                    toggleTips();
+                }
+            }, 300);
+        }
+
+        // Close tips dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const tipsContainer = document.querySelector('.vendor-tips');
+            if (!tipsContainer.contains(event.target)) {
+                const dropdown = document.getElementById('tipsDropdown');
+                const icon = document.getElementById('tips-icon');
+                dropdown.classList.remove('active');
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💍</text></svg>">
+    
+    <meta name="description" content="View vendor profile, portfolio, and contact information">
+    <meta name="author" content="Tom Mulungi">
+    <title>Vendor Profile | Wedding Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        :root {
+            --primary-color: #6b5b95;
+            --secondary-color: #4a6b88;
+            --accent-color: #ff6b8b;
+            --light-color: #f8f9fa;
+            --dark-color: #333;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+
+        .vendor-profile-hero {
+            background: linear-gradient(135deg, rgba(107, 91, 149, 0.9) 0%, rgba(74, 107, 136, 0.9) 100%);
+            color: white;
+            padding: 120px 0 60px;
+            margin-top: 70px;
+        }
+
+        .profile-header {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: -80px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin: -100px auto 1rem;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--primary-color);
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .vendor-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--light-color);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .gallery-section {
+            padding: 3rem 0;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .gallery-item {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .portfolio-section {
+            padding: 3rem 0;
+            background: var(--light-color);
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .portfolio-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .portfolio-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .portfolio-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .portfolio-content {
+            padding: 1.5rem;
+        }
+
+        .contact-section {
+            padding: 3rem 0;
+        }
+
+        .contact-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--light-color);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-item:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .contact-item:hover .contact-icon {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .social-link {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .social-link:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .badge-premium {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-left: 1rem;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-contact {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-contact:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-whatsapp:hover {
+            background: #128C7E;
+            transform: translateY(-2px);
+        }
+
+        .rating-stars {
+            color: #FFD700;
+            font-size: 1.2rem;
+            margin: 0.5rem 0;
+        }
+
+        .experience-badge {
+            background: var(--success-color);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Gallery Styles */
+        .vendor-gallery-section {
+            padding: 3rem 0;
+            background: #f8f9fa;
+        }
+
+        .gallery-grid-main {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .gallery-item-main {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            aspect-ratio: 1;
+        }
+
+        .gallery-item-main:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .gallery-item-main img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item-main:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            color: white;
+            padding: 1rem;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item-main:hover .gallery-caption {
+            transform: translateY(0);
+        }
+
+        /* Modal Styles */
+        .gallery-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            position: relative;
+            margin: auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .modal-content img {
+            width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            background: rgba(0,0,0,0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-modal:hover {
+            background: rgba(0,0,0,0.8);
+        }
+
+        .image-caption {
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .nav-btn {
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            padding: 1rem;
+            cursor: pointer;
+            font-size: 1.5rem;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: all;
+            transition: background 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0,0,0,0.8);
+        }
+
+        @media (max-width: 768px) {
+            .profile-header {
+                margin-top: -60px;
+                padding: 1.5rem;
+            }
+
+            .profile-avatar {
+                width: 120px;
+                height: 120px;
+                margin: -80px auto 1rem;
+            }
+
+            .vendor-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+
+            .gallery-grid-main {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .modal-content {
+                width: 95%;
+            }
+            
+            .nav-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header id="header">
+        <div class="logo">
+            <i class="fas fa-ring"></i>
+            <h1>Wedding Planner</h1>
+        </div>
+        <nav aria-label="Main Navigation">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="vendors.html">Vendors</a></li>
+                <li><a href="admin add.html">Admin</a></li>
+                <li><a href="aboutUs.html">AboutUs</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Vendor Profile Hero -->
+    <section class="vendor-profile-hero">
+        <div class="container">
+            <div class="text-center">
+                <h1 id="vendor-name">Vendor Name</h1>
+                <p id="vendor-category" class="lead">Category</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Profile Header -->
+    <div class="container">
+        <div class="profile-header">
+            <div class="text-center">
+                <div class="profile-avatar" id="vendor-avatar">
+                    <i class="fas fa-store"></i>
+                </div>
+                <h2 id="vendor-display-name">Vendor Name</h2>
+                <div class="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-3">
+                    <span id="vendor-category-badge" class="badge bg-primary">Category</span>
+                    <span id="premium-badge" class="badge-premium" style="display: none;">FEATURED</span>
+                    <span id="experience-badge" class="experience-badge" style="display: none;">5+ Years Experience</span>
+                </div>
+                
+                <div class="rating-stars" id="rating-stars">
+                    <!-- Stars will be generated here -->
+                </div>
+                
+                <p id="vendor-description" class="lead mt-3">
+                    Loading vendor description...
+                </p>
+
+                <div class="vendor-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-rating">4.9</div>
+                        <div class="stat-label">Rating</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-price">$$$</div>
+                        <div class="stat-label">Price Range</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-experience">5</div>
+                        <div class="stat-label">Years Experience</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-events">100+</div>
+                        <div class="stat-label">Events Served</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="#" class="btn-contact" id="contact-btn">
+                        <i class="fas fa-envelope"></i> Contact Vendor
+                    </a>
+                    <a href="#" class="btn-whatsapp" id="whatsapp-btn">
+                        <i class="fab fa-whatsapp"></i> WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gallery Section -->
+    <section class="gallery-section" id="gallery-section" style="display: none;">
+        <div class="container">
+            <h2 class="text-center mb-4">Gallery</h2>
+            <div class="gallery-grid" id="gallery-grid">
+                <!-- Gallery images will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section class="portfolio-section" id="portfolio-section" style="display: none;">
+        <div class="container">
+            <h2 class="text-center mb-4">Portfolio</h2>
+            <div class="portfolio-grid" id="portfolio-grid">
+                <!-- Portfolio items will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <div class="container">
+            <div class="contact-card">
+                <h2 class="text-center mb-4">Get In Touch</h2>
+                
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <strong>Email</strong>
+                            <p id="contact-email">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div>
+                            <strong>Phone</strong>
+                            <p id="contact-phone">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <strong>Location</strong>
+                            <p id="contact-location">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div>
+                            <strong>Website</strong>
+                            <p id="contact-website">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Media Links -->
+                <div class="social-links" id="social-links">
+                    <!-- Social media links will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vendor Gallery Section -->
+    <section class="vendor-gallery-section">
+        <div class="container">
+            <h2 class="text-center mb-4">Our Work Gallery</h2>
+            <div class="gallery-grid-main" id="vendor-gallery">
+                <!-- Gallery items will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Image Modal -->
+    <div class="gallery-modal" id="galleryModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <img id="modalImage" src="" alt="Gallery Image">
+            <div class="image-caption" id="modalCaption"></div>
+            <div class="modal-nav">
+                <button class="nav-btn prev-btn" onclick="navigateGallery(-1)">❮</button>
+                <button class="nav-btn next-btn" onclick="navigateGallery(1)">❯</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Newsletter Section -->
+    <section id="newsletter">
+        <h2>Find More Wedding Professionals</h2>
+        <p>Subscribe to get updates on new vendors, special offers, and wedding planning tips.</p>
+        <form id="newsletter-form" action="#" method="post">
+            <input type="email" placeholder="Enter your email" required>
+            <button type="submit">Subscribe</button>
+        </form>
+    </section>
+
+    <!-- Footer Section -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Wedding Planner</h3>
+                    <p>Your trusted partner in creating the wedding of your dreams. We connect you with the best vendors and provide expert planning advice.</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Follow us on Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="Follow us on Pinterest"><i class="fab fa-pinterest-p"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="../index.html">Home</a></li>
+                        <li><a href="vendors.html">Vendors</a></li>
+                        <li><a href="venues.html">Venues</a></li>
+                        <li><a href="inspiration.html">Inspiration</a></li>
+                        <li><a href="login.html">Login</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Vendor Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="vendor-application.html">List Your Business</a></li>
+                        <li><a href="#">Premium Marketing</a></li>
+                        <li><a href="#">Advertising Options</a></li>
+                        <li><a href="#">Support Center</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> ntinda semawata rd</p>
+                    <p><i class="fas fa-phone"></i> +256 772 566 375</p>
+                    <p><i class="fas fa-envelope"></i> tom.mulungi@gmail.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="copyright">&copy; 2025 Wedding Planner. All rights reserved. Website created by Tom Mulungi.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button id="back-to-top" aria-label="Back to Top"><i class="fas fa-chevron-up"></i></button>
+
+    <script type="module">
+        // Import Firebase configuration
+        import { db } from '../firebase-config.js';
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+
+        // Get vendor ID from URL parameters
+        function getVendorIdFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        // Format price range
+        function formatPriceRange(price) {
+            if (!price) return 'Contact for pricing';
+            const priceNum = parseFloat(price);
+            if (priceNum < 100) return '$';
+            if (priceNum < 500) return '$$';
+            if (priceNum < 1000) return '$$$';
+            return '$$$$';
+        }
+
+        // Generate star rating
+        function generateStarRating(rating) {
+            if (!rating) return '';
+            
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            let stars = '';
+            
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<i class="fas fa-star"></i>';
+            }
+            
+            if (hasHalfStar) {
+                stars += '<i class="fas fa-star-half-alt"></i>';
+            }
+            
+            const emptyStars = 5 - Math.ceil(rating);
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<i class="far fa-star"></i>';
+            }
+            
+            return stars;
+        }
+
+        // Load vendor data
+        async function loadVendorData() {
+            const vendorId = getVendorIdFromURL();
+            
+            if (!vendorId) {
+                showError('No vendor ID specified in URL');
+                return;
+            }
+
+            try {
+                console.log("Loading vendor data for ID:", vendorId);
+                
+                const vendorDoc = await getDoc(doc(db, "vendors", vendorId));
+                
+                if (!vendorDoc.exists()) {
+                    showError('Vendor not found');
+                    return;
+                }
+
+                const vendorData = vendorDoc.data();
+                console.log("Vendor data loaded:", vendorData);
+
+                // Check if vendor is approved
+                if (vendorData.isApproved === false) {
+                    showError('This vendor profile is not available');
+                    return;
+                }
+
+                // Update page title
+                document.title = `${vendorData.name} | Wedding Planner`;
+
+                // Update hero section
+                document.getElementById('vendor-name').textContent = vendorData.name;
+                document.getElementById('vendor-category').textContent = vendorData.category;
+                document.getElementById('vendor-display-name').textContent = vendorData.name;
+                document.getElementById('vendor-category-badge').textContent = vendorData.category;
+
+                // Update avatar/logo
+                const avatarElement = document.getElementById('vendor-avatar');
+                if (vendorData.logoUrl) {
+                    avatarElement.innerHTML = `<img src="${vendorData.logoUrl}" alt="${vendorData.name}">`;
+                }
+
+                // Update description
+                document.getElementById('vendor-description').textContent = vendorData.description || 'No description available.';
+
+                // Update premium badge
+                if (vendorData.isPremium || vendorData.status === 'paid') {
+                    document.getElementById('premium-badge').style.display = 'inline-block';
+                }
+
+                // Update experience badge
+                if (vendorData.experience) {
+                    document.getElementById('experience-badge').textContent = `${vendorData.experience}+ Years Experience`;
+                    document.getElementById('experience-badge').style.display = 'inline-block';
+                }
+
+                // Update rating stars
+                const rating = vendorData.rating || 4.5;
+                document.getElementById('rating-stars').innerHTML = generateStarRating(rating);
+                
+                // Update stats
+                document.getElementById('stat-rating').textContent = rating;
+                document.getElementById('stat-price').textContent = formatPriceRange(vendorData.price);
+                document.getElementById('stat-experience').textContent = vendorData.experience || '5';
+                document.getElementById('stat-events').textContent = getRandomEventCount();
+
+                // Load gallery
+                if (vendorData.gallery && vendorData.gallery.length > 0) {
+                    loadGallery(vendorData.gallery);
+                }
+
+                // Load portfolio
+                if (vendorData.portfolio && vendorData.portfolio.length > 0) {
+                    loadPortfolio(vendorData.portfolio);
+                }
+
+                // Update contact information
+                document.getElementById('contact-email').textContent = vendorData.email || 'Not provided';
+                document.getElementById('contact-phone').textContent = vendorData.phone || vendorData.location || 'Not provided';
+                document.getElementById('contact-location').textContent = vendorData.phone || vendorData.location || 'Not provided';
+                document.getElementById('contact-website').textContent = vendorData.website || 'Not provided';
+                document.getElementById('contact-website').innerHTML = vendorData.website ? 
+                    `<a href="${vendorData.website}" target="_blank">Visit Website</a>` : 'Not provided';
+
+                // Setup contact buttons
+                setupContactButtons(vendorData);
+
+                // Load social media links
+                loadSocialMedia(vendorData);
+
+            } catch (error) {
+                console.error("Error loading vendor data:", error);
+                showError('Failed to load vendor profile: ' + error.message);
+            }
+        }
+
+        function loadGallery(galleryImages) {
+            const galleryGrid = document.getElementById('gallery-grid');
+            const gallerySection = document.getElementById('gallery-section');
+            
+            galleryImages.forEach((imageUrl, index) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                galleryItem.innerHTML = `
+                    <img src="${imageUrl}" alt="Gallery image ${index + 1}" loading="lazy">
+                `;
+                galleryGrid.appendChild(galleryItem);
+            });
+            
+            gallerySection.style.display = 'block';
+        }
+
+        function loadPortfolio(portfolioImages) {
+            const portfolioGrid = document.getElementById('portfolio-grid');
+            const portfolioSection = document.getElementById('portfolio-section');
+            
+            portfolioImages.forEach((imageUrl, index) => {
+                const portfolioCard = document.createElement('div');
+                portfolioCard.className = 'portfolio-card';
+                portfolioCard.innerHTML = `
+                    <img src="${imageUrl}" alt="Portfolio image ${index + 1}" class="portfolio-image" loading="lazy">
+                    <div class="portfolio-content">
+                        <h4>Project ${index + 1}</h4>
+                        <p>Beautiful wedding project showcasing our expertise and attention to detail.</p>
+                    </div>
+                `;
+                portfolioGrid.appendChild(portfolioCard);
+            });
+            
+            portfolioSection.style.display = 'block';
+        }
+
+        function setupContactButtons(vendorData) {
+            const contactBtn = document.getElementById('contact-btn');
+            const whatsappBtn = document.getElementById('whatsapp-btn');
+            
+            // Email contact
+            if (vendorData.email) {
+                contactBtn.href = `mailto:${vendorData.email}?subject=Wedding Inquiry&body=Hello, I would like to inquire about your services for my wedding.`;
+            } else {
+                contactBtn.style.display = 'none';
+            }
+            
+            // WhatsApp contact
+            if (vendorData.phone) {
+                const phoneNumber = vendorData.phone.replace(/\D/g, '');
+                const message = `Hello, I saw your profile on Wedding Planner and would like to inquire about your services for my wedding.`;
+                whatsappBtn.href = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            } else {
+                whatsappBtn.style.display = 'none';
+            }
+        }
+
+        function loadSocialMedia(vendorData) {
+            const socialLinksContainer = document.getElementById('social-links');
+            
+            const socialPlatforms = [
+                { key: 'facebook', icon: 'fab fa-facebook-f', color: '#1877F2' },
+                { key: 'instagram', icon: 'fab fa-instagram', color: '#E4405F' },
+                { key: 'twitter', icon: 'fab fa-twitter', color: '#1DA1F2' }
+            ];
+            
+            socialPlatforms.forEach(platform => {
+                if (vendorData[platform.key]) {
+                    const link = document.createElement('a');
+                    link.href = vendorData[platform.key];
+                    link.target = '_blank';
+                    link.className = 'social-link';
+                    link.style.backgroundColor = platform.color;
+                    link.innerHTML = `<i class="${platform.icon}"></i>`;
+                    socialLinksContainer.appendChild(link);
+                }
+            });
+            
+            // Add website link if available
+            if (vendorData.website) {
+                const websiteLink = document.createElement('a');
+                websiteLink.href = vendorData.website;
+                websiteLink.target = '_blank';
+                websiteLink.className = 'social-link';
+                websiteLink.innerHTML = '<i class="fas fa-globe"></i>';
+                socialLinksContainer.appendChild(websiteLink);
+            }
+        }
+
+        function getRandomEventCount() {
+            return Math.floor(Math.random() * 250) + 50 + '+';
+        }
+
+        function showError(message) {
+            const vendorsContainer = document.getElementById('vendors-container');
+            vendorsContainer.innerHTML = `
+                <div class="no-vendors">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <h3>Profile Not Available</h3>
+                    <p>${message}</p>
+                    <a href="vendors.html" class="btn btn-primary mt-3">
+                        <i class="fas fa-arrow-left"></i> Back to Vendors
+                    </a>
+                </div>
+            `;
+        }
+
+        // Load vendor data when page loads
+        window.addEventListener('DOMContentLoaded', loadVendorData);
+    </script>
+
+    <script>
+        // Gallery Data - Replace with your actual images
+        const vendorGallery = [
+            {
+                image: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                caption: "Elegant Garden Wedding Ceremony"
+            },
+            {
+                image: "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                caption: "Romantic Beachside Celebration"
+            },
+            {
+                image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                caption: "Luxury Ballroom Reception"
+            },
+            {
+                image: "https://images.unsplash.com/photo-1445452916037-9abedf6c2676?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                caption: "Intimate Outdoor Setup"
+            },
+            {
+                image: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                caption: "Vibrant Cultural Wedding"
+            },
+            {
+                image: "https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                caption: "Modern Minimalist Decor"
+            }
+        ];
+
+        let currentImageIndex = 0;
+
+        // Initialize Gallery
+        function initializeGallery() {
+            const galleryContainer = document.getElementById('vendor-gallery');
+            
+            vendorGallery.forEach((item, index) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item-main';
+                galleryItem.innerHTML = `
+                    <img src="${item.image}" alt="Gallery image ${index + 1}" loading="lazy">
+                    <div class="gallery-caption">
+                        <p>${item.caption}</p>
+                    </div>
+                `;
+                
+                galleryItem.addEventListener('click', () => openModal(index));
+                galleryContainer.appendChild(galleryItem);
+            });
+        }
+
+        // Open Modal
+        function openModal(index) {
+            currentImageIndex = index;
+            const modal = document.getElementById('galleryModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalCaption = document.getElementById('modalCaption');
+            
+            modalImage.src = vendorGallery[index].image;
+            modalCaption.textContent = vendorGallery[index].caption;
+            modal.style.display = 'block';
+            
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close Modal
+        function closeModal() {
+            const modal = document.getElementById('galleryModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Navigate Gallery
+        function navigateGallery(direction) {
+            currentImageIndex += direction;
+            
+            if (currentImageIndex >= vendorGallery.length) {
+                currentImageIndex = 0;
+            } else if (currentImageIndex < 0) {
+                currentImageIndex = vendorGallery.length - 1;
+            }
+            
+            const modalImage = document.getElementById('modalImage');
+            const modalCaption = document.getElementById('modalCaption');
+            
+            modalImage.src = vendorGallery[currentImageIndex].image;
+            modalCaption.textContent = vendorGallery[currentImageIndex].caption;
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('galleryModal');
+            if (modal.style.display === 'block') {
+                if (e.key === 'Escape') closeModal();
+                if (e.key === 'ArrowLeft') navigateGallery(-1);
+                if (e.key === 'ArrowRight') navigateGallery(1);
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('galleryModal').addEventListener('click', (e) => {
+            if (e.target.id === 'galleryModal') {
+                closeModal();
+            }
+        });
+
+        // Close modal with close button
+        document.querySelector('.close-modal').addEventListener('click', closeModal);
+
+        // Initialize gallery when page loads
+        document.addEventListener('DOMContentLoaded', initializeGallery);
+    </script>
+
+    <script src="../script.js"></script>
+</body>
+</html>
