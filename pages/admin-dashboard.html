@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Vendor Management</title>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { db, storage, auth } from '../firebase-config.js';
+        import { 
+            collection, getDocs, addDoc, updateDoc, deleteDoc, doc, 
+            serverTimestamp, query, where, orderBy
+        } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+        import { 
+            ref, uploadBytes, getDownloadURL 
+        } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
+
+        // Make Firebase available globally
+        window.firebase = {
+            db, storage, auth, collection, getDocs, addDoc, updateDoc, deleteDoc, doc,
+            serverTimestamp, query, where, orderBy, ref, uploadBytes, getDownloadURL,
+            onAuthStateChanged, signOut
+        };
+
+        console.log("Firebase initialized successfully for admin");
+    </script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6b5b95;
+            --secondary-color: #4a6b88;
+            --accent-color: #4fc3f7;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .auth-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .sidebar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            height: 100vh;
+            position: fixed;
+            width: 280px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.75rem 1.5rem;
+            margin: 0.25rem 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-header {
+            background: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+            padding: 1.25rem;
+            border-radius: 15px 15px 0 0 !important;
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .badge-pending {
+            background: linear-gradient(135deg, var(--warning-color), #fd7e14);
+        }
+        
+        .badge-approved {
+            background: linear-gradient(135deg, var(--success-color), #20c997);
+        }
+        
+        .badge-featured {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+        
+        .vendor-logo {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: #495057;
+            background: #f8f9fa;
+        }
+        
+        .action-buttons .btn {
+            margin: 0 2px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .quick-action-btn {
+            padding: 1rem;
+            text-align: center;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .quick-action-btn:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .quick-action-btn i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .nav-item {
+            position: relative;
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #6b5b95;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .tab-pane {
+            padding: 1.5rem 0;
+        }
+        
+        .nav-tabs .nav-link {
+            color: var(--secondary-color);
+            font-weight: 500;
+            border: none;
+            padding: 1rem 1.5rem;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            background: transparent;
+        }
+        
+        .search-box {
+            max-width: 400px;
+        }
+        
+        /* Add Vendor Form Styles */
+        .add-vendor-form {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .image-preview {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px dashed #dee2e6;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 80px;
+                overflow: hidden;
+            }
+            
+            .sidebar .nav-link span {
+                display: none;
+            }
+            
+            .sidebar .nav-link i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Overlay -->
+    <div id="auth-overlay" class="auth-overlay" style="display: none;">
+        <div class="auth-container">
+            <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
+            <h4>Admin Login Required</h4>
+            <p class="text-muted mb-3">Please log in with your admin account</p>
+            <button class="btn btn-primary w-100" onclick="redirectToLogin()">
+                <i class="fas fa-sign-in-alt"></i> Go to Login
+            </button>
+        </div>
+    </div>
+
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-3 text-center border-bottom border-white border-opacity-25">
+                <h4 class="mb-0">Admin Panel</h4>
+                <small class="opacity-75">Vendor Management</small>
+            </div>
+            <ul class="nav flex-column mt-3">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" data-tab="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                        <span class="notification-badge" id="pending-badge" style="display: none;">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-tab="approvals">
+                        <i class="fas fa-user-check"></i>
+                        <span>Vendor Approvals</span>
+                        <span class="notification-badge" id="approval-badge" style="display: none;">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-tab="vendors">
+                        <i class="fas fa-users"></i>
+                        <span>All Vendors</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-tab="clients">
+                        <i class="fas fa-heart"></i>
+                        <span>Clients</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="../index.html">
+                        <i class="fas fa-home"></i>
+                        <span>View Site</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-content">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">Admin Dashboard</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                        <button class="btn btn-primary" onclick="exportData()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Quick Stats -->
+                <div class="quick-stats">
+                    <div class="card stats-card" onclick="switchTab('approvals')">
+                        <div class="stats-number text-warning" id="pending-vendors">0</div>
+                        <div class="stats-label">Pending Approvals</div>
+                        <small class="text-muted">Click to review</small>
+                    </div>
+                    <div class="card stats-card" onclick="switchTab('vendors')">
+                        <div class="stats-number text-primary" id="total-vendors">0</div>
+                        <div class="stats-label">Total Vendors</div>
+                    </div>
+                    <div class="card stats-card">
+                        <div class="stats-number text-success" id="approved-vendors">0</div>
+                        <div class="stats-label">Approved Vendors</div>
+                    </div>
+                    <div class="card stats-card">
+                        <div class="stats-number text-danger" id="featured-vendors">0</div>
+                        <div class="stats-label">Featured Vendors</div>
+                    </div>
+                    <div class="card stats-card" onclick="switchTab('clients')">
+                        <div class="stats-number text-info" id="total-clients">0</div>
+                        <div class="stats-label">Total Clients</div>
+                    </div>
+                    <div class="card stats-card">
+                        <div class="stats-number text-secondary" id="revenue-total">$0</div>
+                        <div class="stats-label">Total Revenue</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="quick-action-btn" onclick="approveAllPending()">
+                        <i class="fas fa-check-double"></i>
+                        <div>Approve All Pending</div>
+                        <small class="text-muted">Quick approval</small>
+                    </div>
+                    <div class="quick-action-btn" onclick="exportVendorsList()">
+                        <i class="fas fa-file-export"></i>
+                        <div>Export Vendors</div>
+                        <small class="text-muted">CSV format</small>
+                    </div>
+                    <div class="quick-action-btn" onclick="showAddVendorForm()">
+                        <i class="fas fa-plus-circle"></i>
+                        <div>Add New Vendor</div>
+                        <small class="text-muted">Manual entry</small>
+                    </div>
+                    <div class="quick-action-btn" onclick="sendBulkEmail()">
+                        <i class="fas fa-envelope"></i>
+                        <div>Bulk Email</div>
+                        <small class="text-muted">Send to all vendors</small>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Recent Vendor Signups</h5>
+                                <span class="badge bg-primary" id="recent-signups-count">0</span>
+                            </div>
+                            <div class="card-body">
+                                <div id="recent-signups">
+                                    <div class="text-center py-4">
+                                        <div class="loading-spinner"></div>
+                                        <p class="mt-2">Loading recent signups...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Pending Approvals</h5>
+                                <span class="badge bg-warning" id="pending-count">0</span>
+                            </div>
+                            <div class="card-body">
+                                <div id="pending-list">
+                                    <div class="text-center py-4">
+                                        <div class="loading-spinner"></div>
+                                        <p class="mt-2">Loading pending approvals...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vendors Tab -->
+            <div id="vendors-tab" class="tab-content" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">All Vendors</h2>
+                    <div class="d-flex gap-2">
+                        <div class="search-box">
+                            <input type="text" class="form-control" id="vendor-search" placeholder="Search vendors...">
+                        </div>
+                        <button class="btn btn-primary" onclick="showAddVendorForm()">
+                            <i class="fas fa-plus"></i> Add Vendor
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Add Vendor Form -->
+                <div class="card add-vendor-form" id="add-vendor-form" style="display: none;">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-plus-circle"></i> Add New Vendor</h5>
+                        <button type="button" class="btn-close" onclick="hideAddVendorForm()"></button>
+                    </div>
+                    <div class="card-body">
+                        <form id="vendor-form" onsubmit="addVendor(event)">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Business Name *</label>
+                                        <input type="text" class="form-control" id="vendor-name" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Category *</label>
+                                        <select class="form-select" id="vendor-category" required>
+                                            <option value="">Select Category</option>
+                                            <option value="Photography">Photography</option>
+                                            <option value="Catering">Catering</option>
+                                            <option value="Venue">Venue</option>
+                                            <option value="Florist">Florist</option>
+                                            <option value="Music">Music & Entertainment</option>
+                                            <option value="Cake">Wedding Cakes</option>
+                                            <option value="Transportation">Transportation</option>
+                                            <option value="Beauty">Beauty & Hair</option>
+                                            <option value="Attire">Wedding Attire</option>
+                                            <option value="Jewelry">Jewelry</option>
+                                            <option value="Planner">Wedding Planner</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email *</label>
+                                        <input type="email" class="form-control" id="vendor-email" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Phone *</label>
+                                        <input type="text" class="form-control" id="vendor-phone" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Location</label>
+                                        <input type="text" class="form-control" id="vendor-location" placeholder="City, State">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Price Range</label>
+                                        <select class="form-select" id="vendor-price">
+                                            <option value="">Select Price Range</option>
+                                            <option value="50">$ - Budget Friendly</option>
+                                            <option value="200">$$ - Moderate</option>
+                                            <option value="500">$$$ - Premium</option>
+                                            <option value="1000">$$$$ - Luxury</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Rating</label>
+                                        <select class="form-select" id="vendor-rating">
+                                            <option value="4.9">4.9 ★★★★★</option>
+                                            <option value="4.7">4.7 ★★★★☆</option>
+                                            <option value="4.5">4.5 ★★★★☆</option>
+                                            <option value="4.3">4.3 ★★★★☆</option>
+                                            <option value="4.0">4.0 ★★★★☆</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Experience (Years)</label>
+                                        <input type="number" class="form-control" id="vendor-experience" min="0" max="50" value="1">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" id="vendor-description" rows="3" placeholder="Describe the vendor's services..."></textarea>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Logo URL</label>
+                                        <input type="url" class="form-control" id="vendor-logo" placeholder="https://example.com/logo.jpg">
+                                        <div class="mt-2 text-center">
+                                            <img id="logo-preview" class="image-preview" alt="Logo Preview">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Status</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="vendor-approved" checked>
+                                            <label class="form-check-label" for="vendor-approved">
+                                                Approved (Visible to clients)
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="vendor-featured">
+                                            <label class="form-check-label" for="vendor-featured">
+                                                Featured Vendor
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save"></i> Add Vendor
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="hideAddVendorForm()">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Vendor Management</h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="show-only-active">
+                            <label class="form-check-label" for="show-only-active">Show Active Only</label>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Logo</th>
+                                        <th>Business Name</th>
+                                        <th>Category</th>
+                                        <th>Status</th>
+                                        <th>Approval</th>
+                                        <th>Featured</th>
+                                        <th>Rating</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vendors-table-body">
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4">
+                                            <div class="loading-spinner"></div>
+                                            <p class="mt-2">Loading vendors...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rest of your existing tabs (Approvals, Clients) remain the same -->
+            <!-- Approvals Tab -->
+            <div id="approvals-tab" class="tab-content" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">Vendor Approval Queue</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-success" onclick="approveAllPending()">
+                            <i class="fas fa-check-double"></i> Approve All
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Pending Vendor Applications</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Business</th>
+                                        <th>Service Type</th>
+                                        <th>Contact</th>
+                                        <th>Location</th>
+                                        <th>Signup Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="approval-table-body">
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4">
+                                            <div class="loading-spinner"></div>
+                                            <p class="mt-2">Loading pending vendors...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clients Tab -->
+            <div id="clients-tab" class="tab-content" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">Client Management</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">All Clients</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Wedding Date</th>
+                                        <th>Budget</th>
+                                        <th>Signup Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clients-table-body">
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4">
+                                            <div class="loading-spinner"></div>
+                                            <p class="mt-2">Loading clients...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendor Details Modal -->
+    <div class="modal fade" id="vendorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="vendorModalTitle">Vendor Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="vendorModalBody">
+                    <!-- Vendor details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let allVendors = [];
+        let allClients = [];
+        let pendingVendors = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Admin dashboard initializing...");
+            initializeApp();
+            setupEventListeners();
+        });
+
+        // ... (Your existing initializeApp, checkAdminAccess, loadAllData, loadVendors, loadClients functions remain the same)
+
+        // ADD VENDOR FUNCTIONALITY
+        function showAddVendorForm() {
+            document.getElementById('add-vendor-form').style.display = 'block';
+            // Scroll to the form
+            document.getElementById('add-vendor-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideAddVendorForm() {
+            document.getElementById('add-vendor-form').style.display = 'none';
+            document.getElementById('vendor-form').reset();
+            document.getElementById('logo-preview').style.display = 'none';
+        }
+
+        async function addVendor(event) {
+            event.preventDefault();
+            
+            const { addDoc, collection, serverTimestamp } = window.firebase;
+            
+            try {
+                // Get form values
+                const vendorData = {
+                    name: document.getElementById('vendor-name').value,
+                    category: document.getElementById('vendor-category').value,
+                    email: document.getElementById('vendor-email').value,
+                    phone: document.getElementById('vendor-phone').value,
+                    location: document.getElementById('vendor-location').value,
+                    price: document.getElementById('vendor-price').value || 200,
+                    rating: parseFloat(document.getElementById('vendor-rating').value) || 4.5,
+                    experience: parseInt(document.getElementById('vendor-experience').value) || 1,
+                    description: document.getElementById('vendor-description').value,
+                    logoUrl: document.getElementById('vendor-logo').value,
+                    isApproved: document.getElementById('vendor-approved').checked,
+                    isPremium: document.getElementById('vendor-featured').checked,
+                    status: 'active',
+                    profileViews: 0,
+                    inquiryCount: 0,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                };
+
+                // Add vendor to Firestore
+                const docRef = await addDoc(collection(db, "vendors"), vendorData);
+                
+                showMessage(`Vendor "${vendorData.name}" added successfully!`, 'success');
+                
+                // Reset form and hide it
+                hideAddVendorForm();
+                
+                // Refresh vendor list
+                await loadVendors();
+                
+            } catch (error) {
+                console.error("Error adding vendor:", error);
+                showMessage("Failed to add vendor: " + error.message, "error");
+            }
+        }
+
+        // Preview logo when URL is entered
+        document.getElementById('vendor-logo').addEventListener('input', function() {
+            const preview = document.getElementById('logo-preview');
+            const url = this.value;
+            
+            if (url) {
+                preview.src = url;
+                preview.style.display = 'block';
+                preview.onerror = function() {
+                    preview.style.display = 'none';
+                    showMessage("Could not load logo image from the provided URL", "warning");
+                };
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+
+        // ... (Your existing updateDashboardStats, updateNotificationBadges, renderVendorsTable, 
+        // renderClientsTable, updateApprovalTable, loadRecentSignups, loadPendingApprovals functions remain the same)
+
+        // ... (Your existing vendor management functions: approveVendor, approveAllPending, rejectVendor, 
+        // toggleFeatured, deleteVendor, viewVendorDetails remain the same)
+
+        // ... (Your existing utility functions: setupEventListeners, switchTab, refreshData, 
+        // exportData, showMessage, redirectToLogin, handleLogout remain the same)
+
+        // Update the quick actions to include add vendor
+        function showAnalytics() {
+            alert('Analytics dashboard would show vendor performance, revenue trends, and user engagement metrics.');
+        }
+
+        // ... (Rest of your existing functions remain the same)
+    </script>
+</body>
+</html>
