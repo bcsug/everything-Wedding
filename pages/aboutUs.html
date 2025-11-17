@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Everything Wedding</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: #6b5b95;
+        }
+
+        .logo h1 {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #6b5b95;
+        }
+
+        /* Hero Section */
+        .about-hero {
+            background: linear-gradient(135deg, #6b5b95 0%, #4a6b88 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .about-hero h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .about-hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        /* Main Content */
+        .about-content {
+            padding: 4rem 0;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h3 {
+            font-size: 2.5rem;
+            color: #6b5b95;
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Mission Section */
+        .mission-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .mission-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .mission-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .mission-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #6b5b95, #4a6b88);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .mission-card h4 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        /* Owner Section */
+        .owner-section {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin: 3rem 0;
+        }
+
+        .owner-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .owner-photo {
+            text-align: center;
+        }
+
+        .owner-photo img {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #6b5b95;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .owner-info h4 {
+            font-size: 1.8rem;
+            color: #6b5b95;
+            margin-bottom: 0.5rem;
+        }
+
+        .owner-title {
+            color: #4a6b88;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .owner-message {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+            border-left: 4px solid #6b5b95;
+            padding-left: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .credentials {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+        }
+
+        .credentials h5 {
+            color: #6b5b95;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .credentials ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .credentials li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .credentials li:last-child {
+            border-bottom: none;
+        }
+
+        /* Vendor Vetting Process */
+        .vetting-process {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .vetting-step {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #6b5b95, #4a6b88);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* Stats Section */
+        .stats {
+            background: linear-gradient(135deg, #6b5b95 0%, #4a6b88 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .stat-item {
+            padding: 2rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 4rem 0;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6b5b95, #4a6b88);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(107, 91, 149, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #6b5b95;
+            border: 2px solid #6b5b95;
+        }
+
+        .btn-secondary:hover {
+            background: #6b5b95;
+            color: white;
+        }
+
+        /* Footer */
+        footer {
+            background: #333;
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-column h4 {
+            margin-bottom: 1rem;
+            color: #6b5b95;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #6b5b95;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            color: white;
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: #6b5b95;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #444;
+            color: #ccc;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav ul {
+                gap: 1rem;
+            }
+
+            .about-hero h2 {
+                font-size: 2rem;
+            }
+
+            .owner-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .owner-photo img {
+                width: 200px;
+                height: 200px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-ring"></i>
+                    <h1>Everything Wedding</h1>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="../index.html">Home</a></li>
+                        <li><a href="vendors.html">Vendors</a></li>
+                        <li><a href="aboutUs.html">About Us</a></li>
+                        <li><a href="contactUs.html">Contact Us</a></li>
+                        <li><a href="login.html">Login</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="about-hero">
+        <div class="container">
+            <h2>No More Vendor Chase, Just Wedding Bliss</h2>
+            <p>Transforming wedding planning from stressful to seamless through technology and trusted partnerships</p>
+        </div>
+    </section>
+
+    <!-- About Content -->
+    <main class="about-content">
+        <div class="container">
+            <!-- Our Story Section -->
+            <section class="section">
+                <div class="section-title">
+                    <h3>The Problem We Solved</h3>
+                    <p>Born from personal experience, built on professional expertise</p>
+                </div>
+                <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                    <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem;">
+                        While planning my own wedding, I experienced firsthand the frustration of constantly 
+                        chasing vendors instead of them proactively managing their responsibilities. The stress 
+                        of follow-ups, the uncertainty of quality, and the lack of accountability inspired me 
+                        to create a better way.
+                    </p>
+                    <p style="font-size: 1.1rem; line-height: 1.8;">
+                        <strong>Everything Wedding</strong> was born from this personal pain point, combined with 
+                        13 years of project management experience in telecommunications. We apply professional 
+                        project management principles to wedding planning, ensuring vendors deliver excellence 
+                        while couples enjoy their journey to "I do."
+                    </p>
+                </div>
+            </section>
+
+            <!-- Our Mission Section -->
+            <section class="section">
+                <div class="section-title">
+                    <h3>Our Revolutionary Approach</h3>
+                    <p>Three pillars that redefine wedding planning in East Africa</p>
+                </div>
+                <div class="mission-grid">
+                    <div class="mission-card">
+                        <div class="mission-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h4>Vendor Accountability</h4>
+                        <p>We hold vendors to professional standards with performance tracking and quality guarantees. No more chasing - we manage the follow-ups for you.</p>
+                    </div>
+                    <div class="mission-card">
+                        <div class="mission-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <h4>Technology-Driven</h4>
+                        <p>Leveraging IT expertise to create seamless digital experiences. Real-time tracking, automated reminders, and transparent communication.</p>
+                    </div>
+                    <div class="mission-card">
+                        <div class="mission-icon">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <h4>East Africa Expertise</h4>
+                        <p>Built on extensive experience working with top wedding planners across the region. We understand local nuances and vendor landscapes.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Owner Section -->
+            <section class="section">
+                <div class="section-title">
+                    <h3>Meet Your Wedding Project Manager</h3>
+                    <p>Combining technical expertise with wedding industry experience</p>
+                </div>
+                <div class="owner-section">
+                    <div class="owner-content">
+                        <div class="owner-photo">
+                            <img src="../assets/tommy.jpg" alt="Tom Mulungi - Founder" onerror="this.src='https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'">
+                        </div>
+                        <div class="owner-info">
+                            <h4>Tom Mulungi</h4>
+                            <div class="owner-title">Founder & Chief Wedding Consultant</div>
+                            
+                            <div class="credentials">
+                                <h5>Professional Credentials</h5>
+                                <ul>
+                                    <li>🎓 Bachelor's Degree in Information Technology</li>
+                                    <li>📜 Advanced Diploma in Software Engineering</li>
+                                    <li>⏳ 13 Years Project Management Experience (Telecom)</li>
+                                    <li>💼 Business Planning Consultant for Top East African Wedding Planners</li>
+                                </ul>
+                            </div>
+
+                            <p>
+                                My journey from telecommunications project management to wedding planning might seem unusual, 
+                                but it's precisely this background that enables me to bring unprecedented organization and 
+                                accountability to the wedding industry. Having managed multi-million dollar telecom projects, 
+                                I understand what true project delivery looks like.
+                            </p>
+                            
+                            <div class="owner-message">
+                                "I've seen too many couples stressed by vendor management instead of enjoying their engagement. 
+                                My mission is to apply professional project management principles to wedding planning, ensuring 
+                                vendors deliver excellence while you focus on creating beautiful memories. Your wedding should 
+                                be a celebration, not a second job."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vendor Vetting Process -->
+            <section class="section">
+                <div class="section-title">
+                    <h3>Our Exclusive Vendor Standards</h3>
+                    <p>Why our vendors outperform industry standards</p>
+                </div>
+                <div class="vetting-process">
+                    <div class="vetting-step">
+                        <div class="step-number">1</div>
+                        <h4>Professional Background Check</h4>
+                        <p>Verified business registration, insurance coverage, and professional references from previous couples</p>
+                    </div>
+                    <div class="vetting-step">
+                        <div class="step-number">2</div>
+                        <h4>Performance Track Record</h4>
+                        <p>Minimum 10 successful weddings with documented client satisfaction and on-time delivery history</p>
+                    </div>
+                    <div class="vetting-step">
+                        <div class="step-number">3</div>
+                        <h4>Quality & Reliability Audit</h4>
+                        <p>Mystery shopping, portfolio review, and assessment of communication responsiveness</p>
+                    </div>
+                    <div class="vetting-step">
+                        <div class="step-number">4</div>
+                        <h4>Ongoing Performance Management</h4>
+                        <p>Real-time rating system, quarterly reviews, and performance-based placement in our platform</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Section -->
+            <section class="stats">
+                <div class="container">
+                    <div class="section-title">
+                        <h3 style="color: white;">Transforming Wedding Planning</h3>
+                        <p style="color: rgba(255,255,255,0.9);">Measurable results that matter to couples</p>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number">87%</div>
+                            <div class="stat-label">Reduction in Vendor Chase Time</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">150+</div>
+                            <div class="stat-label">Professionally Vetted Vendors</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">99.2%</div>
+                            <div class="stat-label">On-Time Delivery Rate</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">4.9/5</div>
+                            <div class="stat-label">Average Vendor Rating</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CTA Section -->
+            <section class="cta-section">
+                <div class="section-title">
+                    <h3>Ready to Plan Without the Chase?</h3>
+                    <p>Experience wedding planning the way it should be - organized, transparent, and joyful</p>
+                </div>
+                <div class="cta-buttons">
+                    <a href="signup.html" class="btn btn-primary">Start Your Stress-Free Journey</a>
+                    <a href="vendors.html" class="btn btn-secondary">Meet Our Vetted Vendors</a>
+                    <a href="contactUs.html" class="btn btn-secondary">Schedule a Consultation</a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h4>Everything Wedding</h4>
+                    <p>Professional project management meets wedding planning excellence. Based in Kira, serving couples across Uganda.</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="../index.html">Home</a></li>
+                        <li><a href="vendors.html">Vendors</a></li>
+                        <li><a href="aboutUs.html">About Us</a></li>
+                        <li><a href="contactUs.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Our Services</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Vendor Management</a></li>
+                        <li><a href="#">Wedding Project Planning</a></li>
+                        <li><a href="#">Quality Assurance</a></li>
+                        <li><a href="#">Vendor Performance Tracking</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Contact Info</h4>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-map-marker-alt"></i> Kira, Uganda</li>
+                        <li><i class="fas fa-phone"></i> +256 772 566 375</li>
+                        <li><i class="fas fa-envelope"></i> tom.mulungi@gmail.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Everything Wedding. All rights reserved. Built with 13 years of project management expertise.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
