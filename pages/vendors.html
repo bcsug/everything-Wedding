@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💍</text></svg>">
+    
+    <meta name="description" content="Find the best wedding vendors for your special day. Browse photographers, caterers, florists, and more.">
+    <meta name="keywords" content="wedding vendors, wedding photographers, wedding caterers, wedding florists, wedding planning">
+    <meta name="author" content="Tom Mulungi">
+    <title>Wedding Vendors | Find Your Perfect Wedding Professionals</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: #6b5b95;
+            font-size: 1.8rem;
+        }
+
+        .logo h1 {
+            color: #6b5b95;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover, nav a[aria-current="page"] {
+            color: #6b5b95;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6b5b95;
+            cursor: pointer;
+        }
+
+        /* Vendors Hero Section */
+        .vendors-hero {
+            background: linear-gradient(135deg, rgba(107, 91, 149, 0.9) 0%, rgba(74, 107, 136, 0.9) 100%),
+                        url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 140px 0 80px;
+            text-align: center;
+            margin-top: 70px;
+        }
+
+        .vendors-hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .vendors-hero p {
+            font-size: 1.3rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            opacity: 0.95;
+        }
+
+        /* Featured Items Carousel */
+        .featured-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 3rem 0;
+        }
+
+        .featured-carousel {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+            padding: 0 40px;
+        }
+
+        .carousel-container {
+            display: flex;
+            transition: transform 0.5s ease;
+            gap: 1.5rem;
+        }
+
+        .featured-item {
+            min-width: calc(25% - 1.5rem);
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .featured-item:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .featured-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .featured-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .featured-item h4 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .featured-item p {
+            color: #6b5b95;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .featured-price {
+            background: linear-gradient(45deg, #6b5b95, #4a6b88);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #6b5b95;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .carousel-btn:hover {
+            background: #5a4a7d;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-btn.prev {
+            left: 0;
+        }
+
+        .carousel-btn.next {
+            right: 0;
+        }
+
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .indicator.active {
+            background: #6b5b95;
+        }
+
+        /* Search and Filter Section */
+        .search-filter-section {
+            background: white;
+            padding: 2rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 70px;
+            z-index: 100;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 300px;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #6b5b95;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 0.8rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+
+        .category-filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .category-filter {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .category-filter:hover,
+        .category-filter.active {
+            background: #6b5b95;
+            color: white;
+            border-color: #6b5b95;
+        }
+
+        /* Vendors Grid */
+        .vendors-main {
+            padding: 3rem 0;
+            background: #f8f9fa;
+        }
+
+        .vendors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .vendor-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            min-height: 450px;
+        }
+
+        .vendor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .vendor-card.premium::before {
+            content: 'FEATURED';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .vendor-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .vendor-content {
+            padding: 1.5rem;
+        }
+
+        .vendor-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .vendor-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6b5b95, #4a6b88);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .vendor-info {
+            flex: 1;
+        }
+
+        .vendor-info h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.3rem;
+            color: #333;
+        }
+
+        .vendor-category {
+            color: #6b5b95;
+            font-weight: 500;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .vendor-location {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+       .vendor-description {
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    
+    /* Modern browsers with line-clamp support */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    
+    /* Firefox fallback */
+    max-height: 3em; /* Approximately 2 lines (1.5 line-height * 2) */
+    
+    /* Standard property for future compatibility */
+    line-clamp: 2;
+    box-orient: vertical;
+}
+        
+
+        .vendor-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #6b5b95;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.2rem;
+        }
+
+        .vendor-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: #6b5b95;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            background: #5a4a7d;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #6b5b95;
+            color: #6b5b95;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background: #6b5b95;
+            color: white;
+        }
+
+        /* Loading States */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+            grid-column: 1 / -1;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #6b5b95;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* No Results State */
+        .no-vendors {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #666;
+            grid-column: 1 / -1;
+        }
+
+        .no-vendors i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #ddd;
+        }
+
+        /* Footer */
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 3rem 0 1.5rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: #6b5b95;
+            transform: translateY(-2px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Back to Top */
+        #back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #6b5b95;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 999;
+        }
+
+        #back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #back-to-top:hover {
+            background: #5a4a7d;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .featured-item {
+                min-width: calc(33.333% - 1.5rem);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .vendors-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .vendors-hero p {
+                font-size: 1.1rem;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .search-input {
+                min-width: auto;
+            }
+
+            .vendors-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .vendor-stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .vendor-actions {
+                flex-direction: column;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            nav ul {
+                position: fixed;
+                top: 70px;
+                right: -100%;
+                flex-direction: column;
+                background: white;
+                width: 80%;
+                max-width: 300px;
+                height: calc(100vh - 70px);
+                padding: 2rem;
+                box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+                transition: right 0.3s ease;
+            }
+
+            nav ul.active {
+                right: 0;
+            }
+
+            .featured-item {
+                min-width: calc(50% - 1.5rem);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .featured-item {
+                min-width: calc(100% - 1.5rem);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header id="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-ring"></i>
+                    <h1>everythin' WEDDING</h1>
+                </div>
+                <nav aria-label="Main Navigation">
+                    <button class="mobile-menu-btn" aria-label="Toggle Menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <ul>
+                        <li><a href="../index.html">Home</a></li>
+                        <li><a href="vendors.html" aria-current="page">Vendors</a></li>
+                        <li><a href="aboutUs.html">AboutUs</a></li>
+                        <li><a href="login.html">Login</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Vendors Hero Section -->
+    <section class="vendors-hero">
+        <div class="container">
+            <h1>Find Your Perfect Wedding Vendors</h1>
+            <p>Discover trusted professionals who will make your dream wedding a reality. From photographers to caterers, we've got you covered.</p>
+        </div>
+    </section>
+
+    <!-- Featured Items Carousel -->
+    <section class="featured-section">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 2rem; color: #333;">Featured Wedding Items</h2>
+            <div class="featured-carousel">
+                <button class="carousel-btn prev" onclick="moveCarousel(-1)">❮</button>
+                <div class="carousel-container" id="carousel-container">
+                    <!-- Featured items will be loaded here -->
+                </div>
+                <button class="carousel-btn next" onclick="moveCarousel(1)">❯</button>
+                <div class="carousel-indicators" id="carousel-indicators">
+                    <!-- Indicators will be added here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search and Filter Section -->
+    <section class="search-filter-section">
+        <div class="container">
+            <div class="search-box">
+                <input type="text" id="search-input" class="search-input" placeholder="Search vendors by name, category, or location...">
+                <select id="sort-select" class="filter-select">
+                    <option value="name">Sort by Name</option>
+                    <option value="rating">Sort by Rating</option>
+                    <option value="price">Sort by Price</option>
+                </select>
+            </div>
+            
+            <div class="filter-controls">
+                <select id="category-filter" class="filter-select">
+                    <option value="">All Categories</option>
+                    <option value="Photography">Photography</option>
+                    <option value="Catering">Catering</option>
+                    <option value="Venue">Venue</option>
+                    <option value="Florist">Florist</option>
+                    <option value="Planner">Wedding Planner</option>
+                    <option value="Music">Music & Entertainment</option>
+                    <option value="Cake">Wedding Cakes</option>
+                    <option value="Transportation">Transportation</option>
+                    <option value="Beauty">Beauty & Hair</option>
+                    <option value="Attire">Wedding Attire</option>
+                    <option value="Jewelry">Jewelry</option>
+                </select>
+                
+                <select id="location-filter" class="filter-select">
+                    <option value="">All Locations</option>
+                    <option value="Kampala">Kampala</option>
+                    <option value="Entebbe">Entebbe</option>
+                    <option value="Jinja">Jinja</option>
+                    <option value="Mbarara">Mbarara</option>
+                    <option value="Gulu">Gulu</option>
+                </select>
+            </div>
+
+            <div class="category-filters">
+                <button class="category-filter active" data-category="">All Vendors</button>
+                <button class="category-filter" data-category="premium">Featured</button>
+                <button class="category-filter" data-category="Photography">Photography</button>
+                <button class="category-filter" data-category="Catering">Catering</button>
+                <button class="category-filter" data-category="Venue">Venues</button>
+                <button class="category-filter" data-category="Florist">Florists</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Vendors Content -->
+    <main class="vendors-main">
+        <div class="container">            
+            <div id="vendors-container" class="vendors-grid">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading vendors from database...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Section -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Wedding Planner</h3>
+                    <p>Your trusted partner in creating the wedding of your dreams. We connect you with the best vendors and provide expert planning advice.</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Follow us on Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="Follow us on Pinterest"><i class="fab fa-pinterest-p"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="../index.html">Home</a></li>
+                        <li><a href="vendors.html">Vendors</a></li>
+                        <li><a href="venues.html">Venues</a></li>
+                        <li><a href="inspiration.html">Inspiration</a></li>
+                        <li><a href="login.html">Login</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Vendor Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="vendor-application.html">List Your Business</a></li>
+                        <li><a href="#">Premium Marketing</a></li>
+                        <li><a href="#">Advertising Options</a></li>
+                        <li><a href="#">Support Center</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> ntinda semawata rd</p>
+                    <p><i class="fas fa-phone"></i> +256 772 566 375</p>
+                    <p><i class="fas fa-envelope"></i> tom.mulungi@gmail.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="copyright">&copy; 2025 Wedding Planner. All rights reserved. Website created by Tom Mulungi.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button id="back-to-top" aria-label="Back to Top"><i class="fas fa-chevron-up"></i></button>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdV0sWvBVy565Xpgqayxc7SBrc8uDtcXQ",
+            authDomain: "wedding-planner-39b5b.firebaseapp.com",
+            projectId: "wedding-planner-39b5b",
+            storageBucket: "wedding-planner-39b5b.appspot.com",
+            messagingSenderId: "266193524534",
+            appId: "1:266193524534:web:b5266631f8052d65704597"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        // DOM Elements
+        const vendorsContainer = document.getElementById('vendors-container');
+        const carouselContainer = document.getElementById('carousel-container');
+        const carouselIndicators = document.getElementById('carousel-indicators');
+        const searchInput = document.getElementById('search-input');
+        const categoryFilter = document.getElementById('category-filter');
+        const locationFilter = document.getElementById('location-filter');
+        const sortSelect = document.getElementById('sort-select');
+        const categoryFilters = document.querySelectorAll('.category-filter');
+
+        // Global vendors array
+        let sampleVendors = [];
+        let featuredItems = [];
+        let currentSlide = 0;
+        let itemsPerSlide = 4;
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFeaturedItemsFromFirebase();
+            loadVendorsFromFirebase();
+            setupEventListeners();
+            updateItemsPerSlide();
+            window.addEventListener('resize', updateItemsPerSlide);
+        });
+
+        // Update items per slide based on screen size
+        function updateItemsPerSlide() {
+            if (window.innerWidth < 480) {
+                itemsPerSlide = 1;
+            } else if (window.innerWidth < 768) {
+                itemsPerSlide = 2;
+            } else if (window.innerWidth < 1024) {
+                itemsPerSlide = 3;
+            } else {
+                itemsPerSlide = 4;
+            }
+            
+            // Update carousel if featured items are already loaded
+            if (featuredItems.length > 0) {
+                displayFeaturedItems();
+            }
+        }
+
+        // Load featured items from Firebase Firestore
+        async function loadFeaturedItemsFromFirebase() {
+            try {
+                console.log("Loading featured items from Firebase...");
+                
+                // Simple query without ordering to avoid index requirements
+                let featuredQuery = db.collection("featuredItems")
+                    .where("isactive", "==", true)
+                    .limit(12);
+                
+                const querySnapshot = await featuredQuery.get();
+                
+                if (querySnapshot.empty) {
+                    console.log("No featured items found in 'featuredItems' collection");
+                    loadDefaultFeaturedItems();
+                    return;
+                }
+                
+                featuredItems = querySnapshot.docs.map(doc => formatFeaturedItem(doc));
+                console.log(`Loaded ${featuredItems.length} featured items from Firebase`);
+                displayFeaturedItems();
+                
+            } catch (error) {
+                console.error("Error loading featured items from Firebase:", error);
+                // Load default items if there's an error
+                loadDefaultFeaturedItems();
+            }
+        }
+
+        // Format featured item data
+        function formatFeaturedItem(doc) {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                name: data.name || 'Featured Item',
+                category: data.category || 'General',
+                description: data.description || 'Beautiful wedding item',
+                price: data.price || 0,
+                image: getLocalImageUrl(data.imageUrl),
+                createdon: data.createdon || new Date()
+            };
+        }
+
+        // Get local image URL from assets folder
+        function getLocalImageUrl(imageName) {
+            if (!imageName) return '../assets/default-item.jpg';
+            
+            // Remove any path and get just the filename
+            const filename = imageName.split('/').pop();
+            return `../assets/${filename}`;
+        }
+// Load default featured items if Firebase fails
+function loadDefaultFeaturedItems() {
+    featuredItems = [
+        {
+            id: '1',
+            name: 'DAPHTHREAT',
+            category: 'DECOR',
+            description: 'Beautiful wedding dress.',
+            price: 5400000,
+            image: '../assets/kuhingira.jpg'
+        },
+        {
+            id: '2',
+            name: 'suits for you',
+            category: 'wedding attire',
+            description: 'he is good',
+            price: 1500000,
+            image: '../assets/suits.jpg'
+        },
+        {
+            id: '3',
+            name: 'cakes tasty',
+            category: 'wedding cakes',
+            description: 'cakes are really nice',
+            price: 2500000,
+            image: '../assets/cakes.jpg'
+        },
+        {
+            id: '4',
+            name: 'Elegant Wedding Dress',
+            category: 'Wedding Attire',
+            description: 'Beautiful wedding dress for your special day',
+            price: 5400000,
+            image: '../assets/smart.jpg'
+        },
+        {
+            id: '5',
+            name: 'Groom\'s Suit',
+            category: 'Wedding Attire',
+            description: 'Elegant suit for the groom',
+            price: 2500000,
+            image: '../assets/suits.jpg'
+        },
+        {
+            id: '6',
+            name: 'Diamond Ring',
+            category: 'Jewelry',
+            description: 'Stunning diamond engagement ring',
+            price: 3500000,
+            image: '../assets/gold.jpg'
+        }
+    ];
+    
+    displayFeaturedItems();
+}
+            displayFeaturedItems();
+        
+
+        // Display featured items in carousel
+        function displayFeaturedItems() {
+            if (featuredItems.length === 0) {
+                carouselContainer.innerHTML = '<div class="no-vendors"><p>No featured items available</p></div>';
+                return;
+            }
+
+            // Format price in Ugandan Shillings
+            function formatPrice(price) {
+                if (!price || price === 0) return 'Price on request';
+                return `UGX ${price.toLocaleString('en-UG')}`;
+            }
+
+            carouselContainer.innerHTML = featuredItems.map(item => `
+                <div class="featured-item">
+                    <img src="${item.image}" alt="${item.name}" loading="lazy" onerror="this.src='../assets/default-item.jpg'">
+                    <h4>${item.name}</h4>
+                    <p class="featured-price">${formatPrice(item.price)}</p>
+                </div>
+            `).join('');
+
+            // Create indicators
+            const totalSlides = Math.ceil(featuredItems.length / itemsPerSlide);
+            carouselIndicators.innerHTML = '';
+            
+            for (let i = 0; i < totalSlides; i++) {
+                const indicator = document.createElement('div');
+                indicator.className = `indicator ${i === 0 ? 'active' : ''}`;
+                indicator.addEventListener('click', () => goToSlide(i));
+                carouselIndicators.appendChild(indicator);
+            }
+
+            // Reset to first slide
+            currentSlide = 0;
+            updateCarousel();
+        }
+
+        // Carousel functionality
+        function moveCarousel(direction) {
+            const totalSlides = Math.ceil(featuredItems.length / itemsPerSlide);
+            
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = totalSlides - 1;
+            if (currentSlide >= totalSlides) currentSlide = 0;
+            
+            updateCarousel();
+        }
+
+        function goToSlide(slideIndex) {
+            currentSlide = slideIndex;
+            updateCarousel();
+        }
+
+        function updateCarousel() {
+            const itemWidth = 100 / itemsPerSlide;
+            const translateX = -currentSlide * 100;
+            carouselContainer.style.transform = `translateX(${translateX}%)`;
+            
+            // Update active indicator
+            const indicators = document.querySelectorAll('.indicator');
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        // Load vendors from Firebase Firestore
+        async function loadVendorsFromFirebase() {
+            try {
+                console.log("Loading vendors from Firebase...");
+                
+                const vendorsQuery = db.collection("vendors")
+                    .where("isApproved", "==", true)
+                    .where("status", "==", "active");
+                
+                const querySnapshot = await vendorsQuery.get();
+                
+                if (querySnapshot.empty) {
+                    console.log("No approved vendors found");
+                    displayVendors([]);
+                    return;
+                }
+                
+                sampleVendors = querySnapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        name: data.name || 'Vendor',
+                        category: data.category || 'General',
+                        description: data.description || 'Professional wedding services',
+                        location: data.location || 'Contact for location',
+                        contact: data.email || 'Contact vendor',
+                        priceRange: data.priceRange || formatPriceRange(data.price) || 'Contact',
+                        rating: data.rating || '4.5',
+                        experience: data.experience || 1,
+                        isPremium: data.isPremium || data.paymentStatus === 'paid' || false,
+                        logoUrl: '../assets/default-vendor.jpg'
+                    };
+                });
+
+                console.log(`Loaded ${sampleVendors.length} vendors from Firebase`);
+                displayVendors(sampleVendors);
+                
+            } catch (error) {
+                console.error("Error loading vendors from Firebase:", error);
+                displayVendors([]);
+            }
+        }
+
+        // Display vendors
+        function displayVendors(vendors) {
+            if (vendors.length === 0) {
+                vendorsContainer.innerHTML = `
+                    <div class="no-vendors">
+                        <i class="fas fa-search"></i>
+                        <h3>No Vendors Found</h3>
+                        <p>Try adjusting your search criteria or filters</p>
+                    </div>
+                `;
+                return;
+            }
+
+            vendorsContainer.innerHTML = vendors.map(vendor => `
+                <div class="vendor-card ${vendor.isPremium ? 'premium' : ''}">
+                    <img src="${vendor.logoUrl}" alt="${vendor.name}" class="vendor-image" loading="lazy" onerror="this.src='../assets/default-vendor.jpg'">
+                    <div class="vendor-content">
+                        <div class="vendor-header">
+                            <div class="vendor-avatar">${getInitials(vendor.name)}</div>
+                            <div class="vendor-info">
+                                <h3>${vendor.name}</h3>
+                                <p class="vendor-category">${vendor.category}</p>
+                                <p class="vendor-location">
+                                    <i class="fas fa-map-marker-alt"></i> ${vendor.location}
+                                </p>
+                            </div>
+                        </div>
+                        <p class="vendor-description">${vendor.description}</p>
+                        <div class="vendor-stats">
+                            <div class="stat">
+                                <div class="stat-value">${vendor.rating}</div>
+                                <div class="stat-label">Rating</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">${getRandomEventCount()}+</div>
+                                <div class="stat-label">Events</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">${vendor.priceRange}</div>
+                                <div class="stat-label">Price Range</div>
+                            </div>
+                        </div>
+                        <div class="vendor-actions">
+                            <a href="vendor-profile.html?id=${vendor.id}" class="btn-primary">View Profile</a>
+                            <button class="btn-secondary contact-btn" data-vendor-id="${vendor.id}">Contact</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add event listeners to contact buttons
+            document.querySelectorAll('.contact-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const vendorId = btn.getAttribute('data-vendor-id');
+                    contactVendor(vendorId);
+                });
+            });
+        }
+
+        // Helper functions
+        function getInitials(name) {
+            return name.split(' ').map(word => word[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        function getRandomEventCount() {
+            return Math.floor(Math.random() * 250) + 50;
+        }
+
+        function formatPriceRange(price) {
+            if (!price) return null;
+            const priceNum = parseFloat(price);
+            if (priceNum < 100000) return 'UGX';
+            if (priceNum < 500000) return 'UGX UGX';
+            if (priceNum < 1000000) return 'UGX UGX UGX';
+            return 'UGX UGX UGX UGX';
+        }
+
+        function contactVendor(vendorId) {
+            const vendor = sampleVendors.find(v => v.id === vendorId);
+            if (vendor) {
+                alert(`Contacting ${vendor.name}...\n\nEmail: ${vendor.contact}\nLocation: ${vendor.location}\n\nYou can reach out to them directly for more information!`);
+            }
+        }
+
+        // Filter and search functionality
+        function filterAndDisplayVendors() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const category = categoryFilter.value;
+            const location = locationFilter.value;
+            const sortBy = sortSelect.value;
+            const activeCategoryFilter = document.querySelector('.category-filter.active').dataset.category;
+
+            let filteredVendors = sampleVendors.filter(vendor => {
+                const matchesSearch = !searchTerm || 
+                    vendor.name.toLowerCase().includes(searchTerm) ||
+                    vendor.category.toLowerCase().includes(searchTerm) ||
+                    vendor.location.toLowerCase().includes(searchTerm) ||
+                    vendor.description.toLowerCase().includes(searchTerm);
+
+                const matchesCategory = !category || vendor.category === category;
+                const matchesLocation = !location || vendor.location === location;
+                const matchesCategoryFilter = !activeCategoryFilter || 
+                    (activeCategoryFilter === 'premium' ? vendor.isPremium : vendor.category === activeCategoryFilter);
+
+                return matchesSearch && matchesCategory && matchesLocation && matchesCategoryFilter;
+            });
+
+            // Sort vendors
+            filteredVendors.sort((a, b) => {
+                switch (sortBy) {
+                    case 'rating':
+                        return parseFloat(b.rating) - parseFloat(a.rating);
+                    case 'price':
+                        const priceOrder = {'UGX': 1, 'UGX UGX': 2, 'UGX UGX UGX': 3, 'UGX UGX UGX UGX': 4};
+                        return (priceOrder[b.priceRange] || 0) - (priceOrder[a.priceRange] || 0);
+                    default:
+                        return a.name.localeCompare(b.name);
+                }
+            });
+
+            displayVendors(filteredVendors);
+        }
+
+        // Event listeners
+        function setupEventListeners() {
+            searchInput.addEventListener('input', filterAndDisplayVendors);
+            categoryFilter.addEventListener('change', filterAndDisplayVendors);
+            locationFilter.addEventListener('change', filterAndDisplayVendors);
+            sortSelect.addEventListener('change', filterAndDisplayVendors);
+
+            categoryFilters.forEach(filter => {
+                filter.addEventListener('click', () => {
+                    categoryFilters.forEach(f => f.classList.remove('active'));
+                    filter.classList.add('active');
+                    filterAndDisplayVendors();
+                });
+            });
+
+            // Mobile menu toggle
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const navMenu = document.querySelector('nav ul');
+            
+            mobileMenuBtn.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                const icon = mobileMenuBtn.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            });
+
+            // Back to top button
+            const backToTopBtn = document.getElementById('back-to-top');
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.add('show');
+                } else {
+                    backToTopBtn.classList.remove('show');
+                }
+            });
+
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Auto-advance carousel
+            setInterval(() => {
+                moveCarousel(1);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

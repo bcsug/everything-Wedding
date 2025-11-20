@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Vendor Management</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-storage-compat.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6b5b95;
+            --secondary-color: #4a6b88;
+            --accent-color: #4fc3f7;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .auth-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .sidebar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            height: 100vh;
+            position: fixed;
+            width: 280px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.75rem 1.5rem;
+            margin: 0.25rem 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-header {
+            background: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+            padding: 1.25rem;
+            border-radius: 15px 15px 0 0 !important;
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .badge-pending {
+            background: linear-gradient(135deg, var(--warning-color), #fd7e14);
+        }
+        
+        .badge-approved {
+            background: linear-gradient(135deg, var(--success-color), #20c997);
+        }
+        
+        .badge-featured {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+        
+        .vendor-logo {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: #495057;
+            background: #f8f9fa;
+        }
+        
+        .action-buttons .btn {
+            margin: 0 2px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .quick-action-btn {
+            padding: 1rem;
+            text-align: center;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .quick-action-btn:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .quick-action-btn i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .nav-item {
+            position: relative;
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #6b5b95;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .tab-pane {
+            padding: 1.5rem 0;
+        }
+        
+        .nav-tabs .nav-link {
+            color: var(--secondary-color);
+            font-weight: 500;
+            border: none;
+            padding: 1rem 1.5rem;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            background: transparent;
+        }
+        
+        .search-box {
+            max-width: 400px;
+        }
+        
+        /* Add Vendor Form Styles */
+        .add-vendor-form {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .image-preview {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px dashed #dee2e6;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 80px;
+                overflow: hidden;
+            }
+            
+            .sidebar .nav-link span {
+                display: none;
+            }
+            
+            .sidebar .nav-link i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Featured Items Styles */
+        .featured-item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Overlay -->
+    <div id="auth-overlay" class="auth-overlay" style="display: none;">
+        <div class="auth-container">
+            <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
+            <h4>Admin Login Required</h4>
+            <p class="text-muted mb-3">Please log in with your admin account</p>
+            <button class="btn btn-primary w-100" onclick="redirectToLogin()">
+                <i class="fas fa-sign-in-alt"></i> Go to Login
+            </button>
+        </div>
+    </div>
+
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-3 text-center border-bottom border-white border-opacity-25">
+                <h4 class="mb-0">Admin Panel</h4>
+                <small class="opacity-75">Vendor Management</small>
+            </div>
+            <ul class="nav flex-column mt-3">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" data-tab="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                        <span class="notification-badge" id="pending-badge" style="display: none;">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-tab="approvals">
+                        <i class="fas fa-user-check"></i>
+                        <span>Vendor Approvals</span>
+                        <span class="notification-badge" id="approval-badge" style="display: none;">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-tab="vendors">
+                        <i class="fas fa-users"></i>
+                        <span>All Vendors</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-tab="featured-items">
+                        <i class="fas fa-star"></i>
+                        <span>Featured Items</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-tab="clients">
+                        <i class="fas fa-heart"></i>
+                        <span>Clients</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="../index.html">
+                        <i class="fas fa-home"></i>
+                        <span>View Site</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-content">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">Admin Dashboard</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                        <button class="btn btn-primary" onclick="exportData()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Quick Stats -->
+                <div class="quick-stats">
+                    <div class="card stats-card" onclick="switchTab('approvals')">
+                        <div class="stats-number text-warning" id="pending-vendors">0</div>
+                        <div class="stats-label">Pending Approvals</div>
+                        <small class="text-muted">Click to review</small>
+                    </div>
+                    <div class="card stats-card" onclick="switchTab('vendors')">
+                        <div class="stats-number text-primary" id="total-vendors">0</div>
+                        <div class="stats-label">Total Vendors</div>
+                    </div>
+                    <div class="card stats-card">
+                        <div class="stats-number text-success" id="approved-vendors">0</div>
+                        <div class="stats-label">Approved Vendors</div>
+                    </div>
+                    <div class="card stats-card">
+                        <div class="stats-number text-danger" id="featured-vendors">0</div>
+                        <div class="stats-label">Featured Vendors</div>
+                    </div>
+                    <div class="card stats-card" onclick="switchTab('clients')">
+                        <div class="stats-number text-info" id="total-clients">0</div>
+                        <div class="stats-label">Total Clients</div>
+                    </div>
+                    <div class="card stats-card">
+                        <div class="stats-number text-secondary" id="revenue-total">$0</div>
+                        <div class="stats-label">Total Revenue</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="quick-action-btn" onclick="approveAllPending()">
+                        <i class="fas fa-check-double"></i>
+                        <div>Approve All Pending</div>
+                        <small class="text-muted">Quick approval</small>
+                    </div>
+                    <div class="quick-action-btn" onclick="exportVendorsList()">
+                        <i class="fas fa-file-export"></i>
+                        <div>Export Vendors</div>
+                        <small class="text-muted">CSV format</small>
+                    </div>
+                    <div class="quick-action-btn" onclick="showAddVendorForm()">
+                        <i class="fas fa-plus-circle"></i>
+                        <div>Add New Vendor</div>
+                        <small class="text-muted">Manual entry</small>
+                    </div>
+                    <div class="quick-action-btn" onclick="sendBulkEmail()">
+                        <i class="fas fa-envelope"></i>
+                        <div>Bulk Email</div>
+                        <small class="text-muted">Send to all vendors</small>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Recent Vendor Signups</h5>
+                                <span class="badge bg-primary" id="recent-signups-count">0</span>
+                            </div>
+                            <div class="card-body">
+                                <div id="recent-signups">
+                                    <div class="text-center py-4">
+                                        <div class="loading-spinner"></div>
+                                        <p class="mt-2">Loading recent signups...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Pending Approvals</h5>
+                                <span class="badge bg-warning" id="pending-count">0</span>
+                            </div>
+                            <div class="card-body">
+                                <div id="pending-list">
+                                    <div class="text-center py-4">
+                                        <div class="loading-spinner"></div>
+                                        <p class="mt-2">Loading pending approvals...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vendors Tab -->
+            <div id="vendors-tab" class="tab-content" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">All Vendors</h2>
+                    <div class="d-flex gap-2">
+                        <div class="search-box">
+                            <input type="text" class="form-control" id="vendor-search" placeholder="Search vendors...">
+                        </div>
+                        <button class="btn btn-primary" onclick="showAddVendorForm()">
+                            <i class="fas fa-plus"></i> Add Vendor
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Add Vendor Form -->
+                <div class="card add-vendor-form" id="add-vendor-form" style="display: none;">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-plus-circle"></i> Add New Vendor</h5>
+                        <button type="button" class="btn-close" onclick="hideAddVendorForm()"></button>
+                    </div>
+                    <div class="card-body">
+                        <form id="vendor-form" onsubmit="addVendor(event)">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Business Name *</label>
+                                        <input type="text" class="form-control" id="vendor-name" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Category *</label>
+                                        <select class="form-select" id="vendor-category" required>
+                                            <option value="">Select Category</option>
+                                            <option value="Photography">Photography</option>
+                                            <option value="Catering">Catering</option>
+                                            <option value="Venue">Venue</option>
+                                            <option value="Florist">Florist</option>
+                                            <option value="Music">Music & Entertainment</option>
+                                            <option value="Cake">Wedding Cakes</option>
+                                            <option value="Transportation">Transportation</option>
+                                            <option value="Beauty">Beauty & Hair</option>
+                                            <option value="Attire">Wedding Attire</option>
+                                            <option value="Jewelry">Jewelry</option>
+                                            <option value="Planner">Wedding Planner</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email *</label>
+                                        <input type="email" class="form-control" id="vendor-email" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Phone *</label>
+                                        <input type="text" class="form-control" id="vendor-phone" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Location</label>
+                                        <input type="text" class="form-control" id="vendor-location" placeholder="City, State">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Price Range</label>
+                                        <select class="form-select" id="vendor-price">
+                                            <option value="">Select Price Range</option>
+                                            <option value="50">$ - Budget Friendly</option>
+                                            <option value="200">$$ - Moderate</option>
+                                            <option value="500">$$$ - Premium</option>
+                                            <option value="1000">$$$$ - Luxury</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Rating</label>
+                                        <select class="form-select" id="vendor-rating">
+                                            <option value="4.9">4.9 ★★★★★</option>
+                                            <option value="4.7">4.7 ★★★★☆</option>
+                                            <option value="4.5">4.5 ★★★★☆</option>
+                                            <option value="4.3">4.3 ★★★★☆</option>
+                                            <option value="4.0">4.0 ★★★★☆</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Experience (Years)</label>
+                                        <input type="number" class="form-control" id="vendor-experience" min="0" max="50" value="1">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" id="vendor-description" rows="3" placeholder="Describe the vendor's services..."></textarea>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Logo URL</label>
+                                        <input type="url" class="form-control" id="vendor-logo" placeholder="https://example.com/logo.jpg">
+                                        <div class="mt-2 text-center">
+                                            <img id="logo-preview" class="image-preview" alt="Logo Preview">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Status</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="vendor-approved" checked>
+                                            <label class="form-check-label" for="vendor-approved">
+                                                Approved (Visible to clients)
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="vendor-featured">
+                                            <label class="form-check-label" for="vendor-featured">
+                                                Featured Vendor
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save"></i> Add Vendor
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="hideAddVendorForm()">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Vendor Management</h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="show-only-active">
+                            <label class="form-check-label" for="show-only-active">Show Active Only</label>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Logo</th>
+                                        <th>Business Name</th>
+                                        <th>Category</th>
+                                        <th>Status</th>
+                                        <th>Approval</th>
+                                        <th>Featured</th>
+                                        <th>Rating</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vendors-table-body">
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4">
+                                            <div class="loading-spinner"></div>
+                                            <p class="mt-2">Loading vendors...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured Items Tab -->
+            <div id="featured-items-tab" class="tab-content" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">Featured Items Management</h2>
+                    <button class="btn btn-primary" onclick="showAddFeaturedItemForm()">
+                        <i class="fas fa-plus"></i> Add Featured Item
+                    </button>
+                </div>
+
+                <!-- Add Featured Item Form -->
+                <div class="card add-vendor-form" id="add-featured-item-form" style="display: none;">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-star"></i> Add New Featured Item</h5>
+                        <button type="button" class="btn-close" onclick="hideAddFeaturedItemForm()"></button>
+                    </div>
+                    <div class="card-body">
+                        <form id="featured-item-form" onsubmit="addFeaturedItem(event)">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Item Name *</label>
+                                        <input type="text" class="form-control" id="item-name" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Category *</label>
+                                        <select class="form-select" id="item-category" required>
+                                            <option value="">Select Category</option>
+                                            <option value="Wedding Attire">Wedding Attire</option>
+                                            <option value="DECOR">DECOR</option>
+                                            <option value="wedding cakes">Wedding Cakes</option>
+                                            <option value="Jewelry">Jewelry</option>
+                                            <option value="Florist">Florist</option>
+                                            <option value="Photography">Photography</option>
+                                            <option value="Venue">Venue</option>
+                                            <option value="Catering">Catering</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Price (UGX) *</label>
+                                        <input type="number" class="form-control" id="item-price" required min="0">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Image Name *</label>
+                                        <input type="text" class="form-control" id="item-image" required 
+                                               placeholder="e.g., wedding-dress (without .jpg)">
+                                        <small class="text-muted">Just the filename without extension. Image should be in assets folder.</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Status</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="item-active" checked>
+                                            <label class="form-check-label" for="item-active">
+                                                Active (Visible on website)
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="item-featured" checked>
+                                            <label class="form-check-label" for="item-featured">
+                                                Featured Item
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Description *</label>
+                                <textarea class="form-control" id="item-description" rows="3" 
+                                          placeholder="Describe the featured item..." required></textarea>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save"></i> Add Featured Item
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="hideAddFeaturedItemForm()">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Featured Items List -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">All Featured Items</h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="show-only-active-items" checked>
+                            <label class="form-check-label" for="show-only-active-items">Show Active Only</label>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Image</th>
+                                        <th>Item Name</th>
+                                        <th>Category</th>
+                                        <th>Price (UGX)</th>
+                                        <th>Status</th>
+                                        <th>Featured</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="featured-items-table-body">
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4">
+                                            <div class="loading-spinner"></div>
+                                            <p class="mt-2">Loading featured items...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Approvals Tab -->
+            <div id="approvals-tab" class="tab-content" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">Vendor Approval Queue</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-success" onclick="approveAllPending()">
+                            <i class="fas fa-check-double"></i> Approve All
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Pending Vendor Applications</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Business</th>
+                                        <th>Service Type</th>
+                                        <th>Contact</th>
+                                        <th>Location</th>
+                                        <th>Signup Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="approval-table-body">
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4">
+                                            <div class="loading-spinner"></div>
+                                            <p class="mt-2">Loading pending vendors...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clients Tab -->
+            <div id="clients-tab" class="tab-content" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">Client Management</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">All Clients</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Wedding Date</th>
+                                        <th>Budget</th>
+                                        <th>Signup Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clients-table-body">
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4">
+                                            <div class="loading-spinner"></div>
+                                            <p class="mt-2">Loading clients...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendor Details Modal -->
+    <div class="modal fade" id="vendorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="vendorModalTitle">Vendor Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="vendorModalBody">
+                    <!-- Vendor details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdV0sWvBVy565Xpgqayxc7SBrc8uDtcXQ",
+            authDomain: "wedding-planner-39b5b.firebaseapp.com",
+            projectId: "wedding-planner-39b5b",
+            storageBucket: "wedding-planner-39b5b.appspot.com",
+            messagingSenderId: "266193524534",
+            appId: "1:266193524534:web:b5266631f8052d65704597"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const storage = firebase.storage();
+
+        console.log("Firebase initialized successfully for admin");
+
+        // Global variables
+        let allVendors = [];
+        let allClients = [];
+        let pendingVendors = [];
+        let featuredItems = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Admin dashboard initializing...");
+            initializeApp();
+            setupEventListeners();
+        });
+
+        // Initialize Firebase and check authentication
+        async function initializeApp() {
+            try {
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        console.log("User is signed in:", user.email);
+                        checkAdminAccess(user);
+                    } else {
+                        console.log("User is signed out");
+                        showAuthOverlay();
+                    }
+                });
+                
+            } catch (error) {
+                console.error("Error initializing app:", error);
+                showMessage("Failed to initialize application", "error");
+            }
+        }
+
+        // Check if user has admin access
+        async function checkAdminAccess(user) {
+            try {
+                // For now, we'll assume any authenticated user is admin
+                // In production, you should check custom claims or Firestore roles
+                console.log("Admin access granted for:", user.email);
+                hideAuthOverlay();
+                await loadAllData();
+                
+            } catch (error) {
+                console.error("Error checking admin access:", error);
+                showAuthOverlay();
+            }
+        }
+
+        // Load all initial data
+        async function loadAllData() {
+            try {
+                await loadVendors();
+                await loadClients();
+                await loadFeaturedItems();
+                updateDashboardStats();
+                updateNotificationBadges();
+                
+            } catch (error) {
+                console.error("Error loading data:", error);
+                showMessage("Failed to load data", "error");
+            }
+        }
+
+        // Load vendors from Firestore
+        async function loadVendors() {
+            try {
+                const querySnapshot = await db.collection("vendors")
+                    .orderBy("createdAt", "desc")
+                    .get();
+                
+                allVendors = [];
+                pendingVendors = [];
+                
+                querySnapshot.forEach((doc) => {
+                    const vendor = {
+                        id: doc.id,
+                        ...doc.data()
+                    };
+                    allVendors.push(vendor);
+                    
+                    if (!vendor.isApproved) {
+                        pendingVendors.push(vendor);
+                    }
+                });
+                
+                renderVendorsTable(allVendors);
+                updateApprovalTable(pendingVendors);
+                
+            } catch (error) {
+                console.error("Error loading vendors:", error);
+                showMessage("Failed to load vendors", "error");
+            }
+        }
+
+        // Load featured items from Firestore
+        async function loadFeaturedItems() {
+            try {
+                const querySnapshot = await db.collection("featuredItems")
+                    .orderBy("createdon", "desc")
+                    .get();
+                
+                featuredItems = [];
+                
+                querySnapshot.forEach((doc) => {
+                    featuredItems.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                renderFeaturedItemsTable(featuredItems);
+                
+            } catch (error) {
+                console.error("Error loading featured items:", error);
+                showMessage("Failed to load featured items", "error");
+            }
+        }
+
+        // Load clients from Firestore
+        async function loadClients() {
+            try {
+                const querySnapshot = await db.collection("clients")
+                    .orderBy("createdAt", "desc")
+                    .get();
+                
+                allClients = [];
+                
+                querySnapshot.forEach((doc) => {
+                    allClients.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                renderClientsTable(allClients);
+                
+            } catch (error) {
+                console.error("Error loading clients:", error);
+                // Clients collection might not exist yet, that's okay
+            }
+        }
+
+        // Update dashboard statistics
+        function updateDashboardStats() {
+            const totalVendors = allVendors.length;
+            const approvedVendors = allVendors.filter(v => v.isApproved).length;
+            const featuredVendors = allVendors.filter(v => v.isPremium).length;
+            const totalClients = allClients.length;
+            
+            document.getElementById('total-vendors').textContent = totalVendors;
+            document.getElementById('approved-vendors').textContent = approvedVendors;
+            document.getElementById('featured-vendors').textContent = featuredVendors;
+            document.getElementById('pending-vendors').textContent = pendingVendors.length;
+            document.getElementById('total-clients').textContent = totalClients;
+            
+            // Update recent signups and pending lists
+            loadRecentSignups();
+            loadPendingApprovals();
+        }
+
+        // Update notification badges
+        function updateNotificationBadges() {
+            const pendingCount = pendingVendors.length;
+            const approvalBadge = document.getElementById('approval-badge');
+            const pendingBadge = document.getElementById('pending-badge');
+            
+            if (pendingCount > 0) {
+                approvalBadge.textContent = pendingCount;
+                approvalBadge.style.display = 'flex';
+                pendingBadge.textContent = pendingCount;
+                pendingBadge.style.display = 'flex';
+            } else {
+                approvalBadge.style.display = 'none';
+                pendingBadge.style.display = 'none';
+            }
+        }
+
+        // Render vendors table
+        function renderVendorsTable(vendors) {
+            const tbody = document.getElementById('vendors-table-body');
+            const showActiveOnly = document.getElementById('show-only-active').checked;
+            
+            const filteredVendors = showActiveOnly ? vendors.filter(v => v.status === 'active') : vendors;
+            
+            if (filteredVendors.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-4">
+                            <i class="fas fa-users fa-2x text-muted mb-3"></i>
+                            <p>No vendors found</p>
+                            <button class="btn btn-primary" onclick="showAddVendorForm()">
+                                <i class="fas fa-plus"></i> Add First Vendor
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = filteredVendors.map(vendor => `
+                <tr>
+                    <td>
+                        <img src="${vendor.logoUrl || '../assets/default-vendor.jpg'}" 
+                             alt="${vendor.name}" 
+                             class="vendor-logo"
+                             onerror="this.src='../assets/default-vendor.jpg'">
+                    </td>
+                    <td>
+                        <strong>${vendor.name}</strong>
+                        <br><small class="text-muted">${vendor.email}</small>
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary">${vendor.category}</span>
+                    </td>
+                    <td>
+                        <span class="badge ${vendor.status === 'active' ? 'bg-success' : 'bg-secondary'}">
+                            ${vendor.status || 'active'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge ${vendor.isApproved ? 'bg-success' : 'bg-warning'}">
+                            ${vendor.isApproved ? 'Approved' : 'Pending'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge ${vendor.isPremium ? 'bg-warning' : 'bg-secondary'}">
+                            ${vendor.isPremium ? 'Featured' : 'Regular'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge bg-info">${vendor.rating || '4.5'} ★</span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-success" onclick="approveVendor('${vendor.id}')" ${vendor.isApproved ? 'disabled' : ''}>
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning" onclick="toggleFeatured('${vendor.id}', ${!vendor.isPremium})">
+                                <i class="fas ${vendor.isPremium ? 'fa-star' : 'fa-star'}"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewVendorDetails('${vendor.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteVendor('${vendor.id}', '${vendor.name}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Render featured items table
+        function renderFeaturedItemsTable(items) {
+            const tbody = document.getElementById('featured-items-table-body');
+            const showActiveOnly = document.getElementById('show-only-active-items').checked;
+            
+            // Filter items if needed
+            const filteredItems = showActiveOnly ? items.filter(item => item.isactive) : items;
+            
+            if (filteredItems.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <i class="fas fa-star fa-2x text-muted mb-3"></i>
+                            <p>No featured items found</p>
+                            <button class="btn btn-primary" onclick="showAddFeaturedItemForm()">
+                                <i class="fas fa-plus"></i> Add First Item
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = filteredItems.map(item => `
+                <tr>
+                    <td>
+                        <img src="../assets/${item.imageurl}.jpg" 
+                             alt="${item.name}" 
+                             class="featured-item-image"
+                             onerror="this.src='../assets/default-item.jpg'">
+                    </td>
+                    <td>
+                        <strong>${item.name}</strong>
+                        <br><small class="text-muted">${item.description.substring(0, 50)}...</small>
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary">${item.category}</span>
+                    </td>
+                    <td>
+                        <strong>UGX ${item.price.toLocaleString()}</strong>
+                    </td>
+                    <td>
+                        <span class="badge ${item.isactive ? 'bg-success' : 'bg-secondary'}">
+                            ${item.isactive ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge ${item.featured ? 'bg-warning' : 'bg-secondary'}">
+                            ${item.featured ? 'Featured' : 'Regular'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-primary" onclick="toggleFeaturedItemStatus('${item.id}', ${!item.isactive})">
+                                <i class="fas fa-power-off"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning" onclick="editFeaturedItem('${item.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteFeaturedItem('${item.id}', '${item.name}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Render clients table
+        function renderClientsTable(clients) {
+            const tbody = document.getElementById('clients-table-body');
+            
+            if (clients.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <i class="fas fa-heart fa-2x text-muted mb-3"></i>
+                            <p>No clients found yet</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = clients.map(client => `
+                <tr>
+                    <td>${client.name || 'N/A'}</td>
+                    <td>${client.email || 'N/A'}</td>
+                    <td>${client.phone || 'N/A'}</td>
+                    <td>${client.weddingDate || 'N/A'}</td>
+                    <td>${client.budget || 'N/A'}</td>
+                    <td>${client.createdAt ? new Date(client.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Update approval table
+        function updateApprovalTable(pendingVendors) {
+            const tbody = document.getElementById('approval-table-body');
+            const pendingCount = document.getElementById('pending-count');
+            
+            pendingCount.textContent = pendingVendors.length;
+            
+            if (pendingVendors.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="fas fa-check-circle fa-2x text-success mb-3"></i>
+                            <p>No pending approvals</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = pendingVendors.map(vendor => `
+                <tr>
+                    <td>
+                        <strong>${vendor.name}</strong>
+                        <br><small>${vendor.category}</small>
+                    </td>
+                    <td>${vendor.category}</td>
+                    <td>
+                        ${vendor.email}<br>
+                        <small>${vendor.phone}</small>
+                    </td>
+                    <td>${vendor.location || 'Not specified'}</td>
+                    <td>${vendor.createdAt ? new Date(vendor.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-success" onclick="approveVendor('${vendor.id}')">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="rejectVendor('${vendor.id}')">
+                                <i class="fas fa-times"></i> Reject
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewVendorDetails('${vendor.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Load recent signups
+        function loadRecentSignups() {
+            const container = document.getElementById('recent-signups');
+            const recentSignups = allVendors.slice(0, 5);
+            const countElement = document.getElementById('recent-signups-count');
+            
+            countElement.textContent = recentSignups.length;
+            
+            if (recentSignups.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center">No recent signups</p>';
+                return;
+            }
+            
+            container.innerHTML = recentSignups.map(vendor => `
+                <div class="d-flex align-items-center mb-3 p-2 border rounded">
+                    <img src="${vendor.logoUrl || '../assets/default-vendor.jpg'}" 
+                         class="vendor-logo me-3"
+                         onerror="this.src='../assets/default-vendor.jpg'">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">${vendor.name}</h6>
+                        <small class="text-muted">${vendor.category} • ${vendor.createdAt ? new Date(vendor.createdAt.seconds * 1000).toLocaleDateString() : 'Recently'}</small>
+                    </div>
+                    <span class="badge ${vendor.isApproved ? 'bg-success' : 'bg-warning'}">
+                        ${vendor.isApproved ? 'Approved' : 'Pending'}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // Load pending approvals for dashboard
+        function loadPendingApprovals() {
+            const container = document.getElementById('pending-list');
+            const recentPending = pendingVendors.slice(0, 5);
+            
+            if (recentPending.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center">No pending approvals</p>';
+                return;
+            }
+            
+            container.innerHTML = recentPending.map(vendor => `
+                <div class="d-flex align-items-center mb-3 p-2 border rounded">
+                    <img src="${vendor.logoUrl || '../assets/default-vendor.jpg'}" 
+                         class="vendor-logo me-3"
+                         onerror="this.src='../assets/default-vendor.jpg'">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">${vendor.name}</h6>
+                        <small class="text-muted">${vendor.category}</small>
+                    </div>
+                    <button class="btn btn-sm btn-success" onclick="approveVendor('${vendor.id}')">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // VENDOR MANAGEMENT FUNCTIONS
+        async function approveVendor(vendorId) {
+            try {
+                await db.collection("vendors").doc(vendorId).update({
+                    isApproved: true,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showMessage("Vendor approved successfully!", "success");
+                await loadAllData();
+                
+            } catch (error) {
+                console.error("Error approving vendor:", error);
+                showMessage("Failed to approve vendor", "error");
+            }
+        }
+
+        async function approveAllPending() {
+            try {
+                const updatePromises = pendingVendors.map(vendor => 
+                    db.collection("vendors").doc(vendor.id).update({
+                        isApproved: true,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    })
+                );
+                
+                await Promise.all(updatePromises);
+                showMessage("All pending vendors approved successfully!", "success");
+                await loadAllData();
+                
+            } catch (error) {
+                console.error("Error approving all vendors:", error);
+                showMessage("Failed to approve all vendors", "error");
+            }
+        }
+
+        async function rejectVendor(vendorId) {
+            if (!confirm("Are you sure you want to reject this vendor?")) return;
+            
+            try {
+                await db.collection("vendors").doc(vendorId).update({
+                    status: 'rejected',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showMessage("Vendor rejected successfully!", "success");
+                await loadAllData();
+                
+            } catch (error) {
+                console.error("Error rejecting vendor:", error);
+                showMessage("Failed to reject vendor", "error");
+            }
+        }
+
+        async function toggleFeatured(vendorId, isFeatured) {
+            try {
+                await db.collection("vendors").doc(vendorId).update({
+                    isPremium: isFeatured,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showMessage(`Vendor ${isFeatured ? 'added to' : 'removed from'} featured list!`, "success");
+                await loadAllData();
+                
+            } catch (error) {
+                console.error("Error toggling featured status:", error);
+                showMessage("Failed to update featured status", "error");
+            }
+        }
+
+        async function deleteVendor(vendorId, vendorName) {
+            if (!confirm(`Are you sure you want to delete "${vendorName}"? This action cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                await db.collection("vendors").doc(vendorId).delete();
+                showMessage(`Vendor "${vendorName}" deleted successfully!`, "success");
+                await loadAllData();
+                
+            } catch (error) {
+                console.error("Error deleting vendor:", error);
+                showMessage("Failed to delete vendor", "error");
+            }
+        }
+
+        function viewVendorDetails(vendorId) {
+            const vendor = allVendors.find(v => v.id === vendorId);
+            if (!vendor) return;
+            
+            const modalBody = document.getElementById('vendorModalBody');
+            modalBody.innerHTML = `
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <img src="${vendor.logoUrl || '../assets/default-vendor.jpg'}" 
+                             class="img-fluid rounded mb-3"
+                             onerror="this.src='../assets/default-vendor.jpg'">
+                        <h4>${vendor.name}</h4>
+                        <span class="badge bg-secondary">${vendor.category}</span>
+                    </div>
+                    <div class="col-md-8">
+                        <h5>Contact Information</h5>
+                        <p><strong>Email:</strong> ${vendor.email}</p>
+                        <p><strong>Phone:</strong> ${vendor.phone}</p>
+                        <p><strong>Location:</strong> ${vendor.location || 'Not specified'}</p>
+                        
+                        <h5 class="mt-4">Business Details</h5>
+                        <p><strong>Rating:</strong> ${vendor.rating || '4.5'} ★</p>
+                        <p><strong>Experience:</strong> ${vendor.experience || '1'} years</p>
+                        <p><strong>Price Range:</strong> ${vendor.price ? '$'.repeat(vendor.price) : 'Not specified'}</p>
+                        <p><strong>Description:</strong> ${vendor.description || 'No description provided'}</p>
+                        
+                        <h5 class="mt-4">Status</h5>
+                        <p>
+                            <span class="badge ${vendor.isApproved ? 'bg-success' : 'bg-warning'} me-2">
+                                ${vendor.isApproved ? 'Approved' : 'Pending Approval'}
+                            </span>
+                            <span class="badge ${vendor.isPremium ? 'bg-warning' : 'bg-secondary'} me-2">
+                                ${vendor.isPremium ? 'Featured' : 'Regular'}
+                            </span>
+                            <span class="badge ${vendor.status === 'active' ? 'bg-success' : 'bg-secondary'}">
+                                ${vendor.status || 'active'}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('vendorModalTitle').textContent = `Vendor: ${vendor.name}`;
+            new bootstrap.Modal(document.getElementById('vendorModal')).show();
+        }
+
+        // ADD VENDOR FUNCTIONALITY
+        function showAddVendorForm() {
+            document.getElementById('add-vendor-form').style.display = 'block';
+            document.getElementById('add-vendor-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideAddVendorForm() {
+            document.getElementById('add-vendor-form').style.display = 'none';
+            document.getElementById('vendor-form').reset();
+            document.getElementById('logo-preview').style.display = 'none';
+        }
+
+        async function addVendor(event) {
+            event.preventDefault();
+            
+            try {
+                const vendorData = {
+                    name: document.getElementById('vendor-name').value,
+                    category: document.getElementById('vendor-category').value,
+                    email: document.getElementById('vendor-email').value,
+                    phone: document.getElementById('vendor-phone').value,
+                    location: document.getElementById('vendor-location').value,
+                    price: document.getElementById('vendor-price').value || 200,
+                    rating: parseFloat(document.getElementById('vendor-rating').value) || 4.5,
+                    experience: parseInt(document.getElementById('vendor-experience').value) || 1,
+                    description: document.getElementById('vendor-description').value,
+                    logoUrl: document.getElementById('vendor-logo').value,
+                    isApproved: document.getElementById('vendor-approved').checked,
+                    isPremium: document.getElementById('vendor-featured').checked,
+                    status: 'active',
+                    profileViews: 0,
+                    inquiryCount: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                await db.collection("vendors").add(vendorData);
+                
+                showMessage(`Vendor "${vendorData.name}" added successfully!`, 'success');
+                hideAddVendorForm();
+                await loadVendors();
+                
+            } catch (error) {
+                console.error("Error adding vendor:", error);
+                showMessage("Failed to add vendor: " + error.message, "error");
+            }
+        }
+
+        // FEATURED ITEMS MANAGEMENT
+        function showAddFeaturedItemForm() {
+            document.getElementById('add-featured-item-form').style.display = 'block';
+            document.getElementById('add-featured-item-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideAddFeaturedItemForm() {
+            document.getElementById('add-featured-item-form').style.display = 'none';
+            document.getElementById('featured-item-form').reset();
+        }
+
+        async function addFeaturedItem(event) {
+            event.preventDefault();
+            
+            try {
+                const itemData = {
+                    name: document.getElementById('item-name').value,
+                    category: document.getElementById('item-category').value,
+                    description: document.getElementById('item-description').value,
+                    price: parseInt(document.getElementById('item-price').value),
+                    imageurl: document.getElementById('item-image').value,
+                    isactive: document.getElementById('item-active').checked,
+                    featured: document.getElementById('item-featured').checked,
+                    createdon: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                await db.collection("featuredItems").add(itemData);
+                
+                showMessage(`Featured item "${itemData.name}" added successfully!`, 'success');
+                hideAddFeaturedItemForm();
+                await loadFeaturedItems();
+                
+            } catch (error) {
+                console.error("Error adding featured item:", error);
+                showMessage("Failed to add featured item: " + error.message, "error");
+            }
+        }
+
+        async function toggleFeaturedItemStatus(itemId, newStatus) {
+            try {
+                await db.collection("featuredItems").doc(itemId).update({
+                    isactive: newStatus
+                });
+                
+                showMessage(`Item ${newStatus ? 'activated' : 'deactivated'} successfully!`, 'success');
+                await loadFeaturedItems();
+                
+            } catch (error) {
+                console.error("Error updating item status:", error);
+                showMessage("Failed to update item status", "error");
+            }
+        }
+
+        async function deleteFeaturedItem(itemId, itemName) {
+            if (!confirm(`Are you sure you want to delete "${itemName}"? This action cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                await db.collection("featuredItems").doc(itemId).delete();
+                showMessage(`Item "${itemName}" deleted successfully!`, 'success');
+                await loadFeaturedItems();
+                
+            } catch (error) {
+                console.error("Error deleting featured item:", error);
+                showMessage("Failed to delete item", "error");
+            }
+        }
+
+        function editFeaturedItem(itemId) {
+            alert('Edit functionality would open a form to modify the featured item details.');
+            // Implementation for editing featured items would go here
+        }
+
+        // UTILITY FUNCTIONS
+        function setupEventListeners() {
+            // Tab navigation
+            document.querySelectorAll('.nav-link[data-tab]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const tab = e.target.getAttribute('data-tab') || e.target.closest('.nav-link').getAttribute('data-tab');
+                    switchTab(tab);
+                });
+            });
+
+            // Logo preview
+            document.getElementById('vendor-logo').addEventListener('input', function() {
+                const preview = document.getElementById('logo-preview');
+                const url = this.value;
+                
+                if (url) {
+                    preview.src = url;
+                    preview.style.display = 'block';
+                    preview.onerror = function() {
+                        preview.style.display = 'none';
+                        showMessage("Could not load logo image from the provided URL", "warning");
+                    };
+                } else {
+                    preview.style.display = 'none';
+                }
+            });
+
+            // Filter toggles
+            document.getElementById('show-only-active').addEventListener('change', function() {
+                renderVendorsTable(allVendors);
+            });
+
+            document.getElementById('show-only-active-items').addEventListener('change', function() {
+                renderFeaturedItemsTable(featuredItems);
+            });
+
+            // Search functionality
+            document.getElementById('vendor-search').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredVendors = allVendors.filter(vendor => 
+                    vendor.name.toLowerCase().includes(searchTerm) ||
+                    vendor.category.toLowerCase().includes(searchTerm) ||
+                    vendor.email.toLowerCase().includes(searchTerm)
+                );
+                renderVendorsTable(filteredVendors);
+            });
+
+            // Logout button
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Remove active class from all nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Show selected tab and activate nav link
+            document.getElementById(`${tabName}-tab`).style.display = 'block';
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            
+            // Load data for specific tabs if needed
+            if (tabName === 'featured-items') {
+                loadFeaturedItems();
+            }
+        }
+
+        async function refreshData() {
+            showMessage("Refreshing data...", "info");
+            await loadAllData();
+            showMessage("Data refreshed successfully!", "success");
+        }
+
+        function exportData() {
+            alert('Export functionality would generate reports in CSV/PDF format.');
+        }
+
+        function showMessage(message, type = 'info') {
+            // Create a simple toast notification
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            toast.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 5000);
+        }
+
+        function showAuthOverlay() {
+            document.getElementById('auth-overlay').style.display = 'flex';
+        }
+
+        function hideAuthOverlay() {
+            document.getElementById('auth-overlay').style.display = 'none';
+        }
+
+        function redirectToLogin() {
+            window.location.href = 'login.html';
+        }
+
+        async function handleLogout() {
+            try {
+                await auth.signOut();
+                showMessage("Logged out successfully", "success");
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1000);
+            } catch (error) {
+                console.error("Error signing out:", error);
+                showMessage("Error signing out", "error");
+            }
+        }
+
+        // Quick action functions
+        function exportVendorsList() {
+            alert('Vendor list export would generate a CSV file with all vendor data.');
+        }
+
+        function sendBulkEmail() {
+            alert('Bulk email functionality would open a composer to email all vendors.');
+        }
+    </script>
+</body>
+</html>

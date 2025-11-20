@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Dashboard - Wedding Planner</title>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase configuration
+        import { db, storage, auth } from '../firebase-config.js';
+        import { 
+            collection, getDocs, updateDoc, doc, query, where, 
+            serverTimestamp, orderBy, limit, getDoc, setDoc
+        } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+        import { 
+            ref, uploadBytes, getDownloadURL, deleteObject 
+        } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js";
+        import { 
+            onAuthStateChanged, signOut 
+        } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
+
+        // Make Firebase available globally
+        window.firebase = {
+            db, storage, auth, collection, getDocs, updateDoc, doc, query, where,
+            serverTimestamp, orderBy, limit, getDoc, setDoc, ref, uploadBytes, getDownloadURL, 
+            deleteObject, onAuthStateChanged, signOut
+        };
+
+        console.log("Firebase initialized for vendor dashboard");
+    </script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6d5ba1;
+            --secondary-color: #4a6b88;
+            --accent-color: #ff6b8b;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --hover-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 0;
+            color: #334155;
+        }
+        
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #6d5ba1, #4a6b88);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .auth-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-color), #5a4a8a);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            width: 280px;
+            transition: all 0.3s;
+            padding-top: 20px;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            padding: 0.85rem 1.5rem;
+            margin: 0.15rem 1rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            transition: all 0.3s;
+            min-height: 100vh;
+        }
+        
+        .card {
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 24px;
+            border: none;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            box-shadow: var(--hover-shadow);
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+            padding: 1.5rem;
+            border-radius: 16px 16px 0 0 !important;
+            font-size: 1.1rem;
+        }
+        
+        .vendor-logo {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 150px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin: 5px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .preview-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .image-upload-btn {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            border-radius: 12px;
+        }
+        
+        .image-upload-btn input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 1.75rem;
+            border-radius: 16px;
+            background: white;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-label {
+            color: #64748b;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 12px;
+        }
+        
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: #475569;
+            background: #f8fafc;
+            padding: 1rem;
+        }
+        
+        .action-buttons .btn {
+            margin: 0 2px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            padding: 0.85rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(109, 91, 161, 0.15);
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+                overflow: hidden;
+            }
+            
+            .sidebar .nav-link span {
+                display: none;
+            }
+            
+            .sidebar .nav-link i {
+                margin-right: 0;
+                font-size: 1.3rem;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+                padding: 20px;
+            }
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #5a4a8a);
+            border: none;
+            border-radius: 12px;
+            padding: 0.85rem 1.75rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(109, 91, 161, 0.2);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(109, 91, 161, 0.3);
+        }
+        
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .profile-avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 5px solid white;
+            margin: 0 auto 1.5rem;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .tab-content {
+            padding: 1.5rem 0;
+        }
+        
+        .nav-tabs .nav-link {
+            color: #64748b;
+            font-weight: 600;
+            border: none;
+            padding: 1rem 1.75rem;
+            border-radius: 12px 12px 0 0;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            background: transparent;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            color: var(--primary-color);
+            background: rgba(109, 91, 161, 0.05);
+        }
+        
+        .gallery-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        
+        .gallery-item .btn-remove {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .gallery-item:hover .btn-remove {
+            opacity: 1;
+        }
+        
+        .social-input-group {
+            position: relative;
+        }
+        
+        .social-input-group .input-group-text {
+            background: var(--light-color);
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+        }
+        
+        .social-input-group .form-control {
+            border-left: none;
+            padding-left: 0;
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 2.5rem;
+            text-align: center;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background: rgba(109, 91, 161, 0.03);
+        }
+        
+        .upload-area i {
+            font-size: 3rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+        
+        .page-title {
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+        }
+        
+        .section-title {
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 1.25rem;
+            font-size: 1.25rem;
+        }
+        
+        .badge-premium {
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            color: #000;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+        
+        .progress {
+            height: 10px;
+            border-radius: 10px;
+            background: #e2e8f0;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 10px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #64748b;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: #cbd5e1;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+        
+        .dashboard-title {
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0;
+            font-size: 2rem;
+        }
+        
+        .welcome-message {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Overlay -->
+    <div id="auth-overlay" class="auth-overlay">
+        <div class="auth-container">
+            <div class="profile-avatar mb-4">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <h4 class="mb-3">Vendor Login Required</h4>
+            <p class="text-muted mb-4">Please log in with your vendor account to access the dashboard</p>
+            <button class="btn btn-primary w-100 py-2" onclick="redirectToLogin()">
+                <i class="fas fa-sign-in-alt me-2"></i> Go to Login
+            </button>
+        </div>
+    </div>
+
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-4 text-center border-bottom border-light border-opacity-25 mb-3">
+                <div class="profile-avatar mb-3" id="sidebar-avatar">
+                    <i class="fas fa-store"></i>
+                </div>
+                <h5 id="sidebar-vendor-name" class="mb-1">Vendor Name</h5>
+                <p class="small opacity-75 mb-0" id="sidebar-vendor-category">Category</p>
+                <div id="sidebar-premium-badge" class="mt-2" style="display: none;">
+                    <span class="badge-premium">PREMIUM</span>
+                </div>
+            </div>
+            <ul class="nav flex-column px-2">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" data-tab="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-tab="profile">
+                        <i class="fas fa-user-edit"></i>
+                        <span>Edit Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-tab="gallery">
+                        <i class="fas fa-images"></i>
+                        <span>Gallery & Portfolio</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-tab="social">
+                        <i class="fas fa-share-alt"></i>
+                        <span>Social Media</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="../pages/vendors.html" target="_blank">
+                        <i class="fas fa-eye"></i>
+                        <span>View Public Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item mt-4 pt-3 border-top border-light border-opacity-25">
+                    <a class="nav-link" href="../index.html">
+                        <i class="fas fa-home"></i>
+                        <span>Back to Site</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-danger" href="#" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-content">
+                <div class="dashboard-header">
+                    <div>
+                        <h1 class="dashboard-title">Vendor Dashboard</h1>
+                        <p class="welcome-message" id="welcome-message">Welcome back! Here's your business overview.</p>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt me-2"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Quick Stats -->
+                <div class="quick-stats">
+                    <div class="stats-card">
+                        <div class="stats-number" id="profile-views">0</div>
+                        <div class="stats-label">Profile Views</div>
+                        <div class="mt-3">
+                            <small class="text-success"><i class="fas fa-arrow-up me-1"></i> 12% from last month</small>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-number" id="inquiries-count">0</div>
+                        <div class="stats-label">Inquiries</div>
+                        <div class="mt-3">
+                            <small class="text-success"><i class="fas fa-arrow-up me-1"></i> 5 new this week</small>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-number" id="rating-display">0.0</div>
+                        <div class="stats-label">Your Rating</div>
+                        <div class="mt-3">
+                            <div class="text-warning">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-number" id="completion-percentage">0%</div>
+                        <div class="stats-label">Profile Complete</div>
+                        <div class="mt-3">
+                            <div class="progress">
+                                <div id="completion-bar" class="progress-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Preview -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Your Public Profile Preview</h5>
+                                <a href="../pages/vendors.html" class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="fas fa-external-link-alt me-1"></i> View Live
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-3 text-center">
+                                        <img id="preview-logo" src="" alt="Vendor Logo" class="vendor-logo mb-3" style="display: none;">
+                                        <div id="preview-logo-placeholder" class="vendor-logo bg-light d-flex align-items-center justify-content-center mb-3">
+                                            <i class="fas fa-store fa-2x text-muted"></i>
+                                        </div>
+                                        <h5 id="preview-name" class="mb-2">Your Business Name</h5>
+                                        <span class="badge bg-primary mb-2" id="preview-category">Category</span>
+                                        <div class="mt-2" id="preview-featured-badge" style="display: none;">
+                                            <span class="badge-premium">FEATURED</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <strong>Contact Email:</strong> <span id="preview-email" class="ms-2">Not set</span>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>Phone/Location:</strong> <span id="preview-phone" class="ms-2">Not set</span>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <strong>Price Range:</strong> <span id="preview-price" class="ms-2">Not set</span>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>Rating:</strong> <span id="preview-rating" class="ms-2">Not rated</span>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong>Description:</strong>
+                                            <p id="preview-description" class="mt-2">No description provided yet.</p>
+                                        </div>
+                                        <div class="alert alert-info mt-4">
+                                            <i class="fas fa-info-circle me-2"></i> 
+                                            Changes made in this dashboard will immediately reflect on your public profile.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Recent Activity</h5>
+                                <span class="badge bg-primary rounded-pill" id="activity-count">0</span>
+                            </div>
+                            <div class="card-body">
+                                <div id="recent-activity-list">
+                                    <div class="empty-state">
+                                        <i class="fas fa-stream"></i>
+                                        <h5>No recent activity</h5>
+                                        <p>Your recent activities will appear here</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Edit Tab -->
+            <div id="profile-tab" class="tab-content" style="display: none;">
+                <div class="dashboard-header">
+                    <div>
+                        <h1 class="dashboard-title">Edit Profile</h1>
+                        <p class="welcome-message">Update your business information and details</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveProfile()">
+                        <i class="fas fa-save me-2"></i> Save Changes
+                    </button>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Basic Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="profile-form">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-4">
+                                                <label for="vendorName" class="form-label">Business Name *</label>
+                                                <input type="text" class="form-control" id="vendorName" required>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label for="vendorCategory" class="form-label">Category *</label>
+                                                <select class="form-select" id="vendorCategory" required>
+                                                    <option value="">Select Category</option>
+                                                    <option value="Photography">Photography</option>
+                                                    <option value="Catering">Catering</option>
+                                                    <option value="Venue">Venue</option>
+                                                    <option value="Florist">Florist</option>
+                                                    <option value="Music">Music & Entertainment</option>
+                                                    <option value="Cake">Wedding Cakes</option>
+                                                    <option value="Transportation">Transportation</option>
+                                                    <option value="Beauty">Beauty & Hair</option>
+                                                    <option value="Attire">Wedding Attire</option>
+                                                    <option value="Jewelry">Jewelry</option>
+                                                    <option value="Planner">Wedding Planner</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label for="vendorEmail" class="form-label">Email *</label>
+                                                <input type="email" class="form-control" id="vendorEmail" required>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label for="vendorPhone" class="form-label">Phone/Location *</label>
+                                                <input type="text" class="form-control" id="vendorPhone" required>
+                                                <small class="text-muted">This will be displayed as your location on the website</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-4">
+                                                <label for="vendorWebsite" class="form-label">Website</label>
+                                                <input type="url" class="form-control" id="vendorWebsite" placeholder="https://...">
+                                            </div>
+                                            <div class="mb-4">
+                                                <label for="vendorPrice" class="form-label">Price Range *</label>
+                                                <select class="form-select" id="vendorPrice" required>
+                                                    <option value="">Select Price Range</option>
+                                                    <option value="50">$ - Budget Friendly</option>
+                                                    <option value="200">$$ - Moderate</option>
+                                                    <option value="500">$$$ - Premium</option>
+                                                    <option value="1000">$$$$ - Luxury</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label for="vendorRating" class="form-label">Rating</label>
+                                                <select class="form-select" id="vendorRating">
+                                                    <option value="4.9">4.9 ★★★★★</option>
+                                                    <option value="4.7">4.7 ★★★★☆</option>
+                                                    <option value="4.5">4.5 ★★★★☆</option>
+                                                    <option value="4.3">4.3 ★★★★☆</option>
+                                                    <option value="4.0">4.0 ★★★★☆</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label for="vendorExperience" class="form-label">Years of Experience</label>
+                                                <input type="number" class="form-control" id="vendorExperience" min="0" max="50" value="5">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="mb-4">
+                                                <label for="vendorDescription" class="form-label">Business Description *</label>
+                                                <textarea class="form-control" id="vendorDescription" rows="4" placeholder="Describe your services, expertise, and what makes you special..." required></textarea>
+                                                <small class="text-muted">This description will appear on your public profile</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-4">
+                                                <label class="form-label">Business Logo</label>
+                                                <div class="upload-area" id="logo-upload-area">
+                                                    <i class="fas fa-cloud-upload-alt"></i>
+                                                    <h5>Upload Logo</h5>
+                                                    <p class="text-muted mb-0">Drag & drop or click to upload</p>
+                                                    <input type="file" id="vendorLogo" accept="image/*" class="d-none">
+                                                </div>
+                                                <div class="mt-3 text-center">
+                                                    <img id="logoPreview" src="" alt="Logo Preview" class="vendor-logo" style="display: none;">
+                                                    <div id="logoPreviewPlaceholder" class="vendor-logo bg-light d-flex align-items-center justify-content-center">
+                                                        <i class="fas fa-camera text-muted"></i>
+                                                    </div>
+                                                    <p class="small text-muted mt-2">Recommended: Square image, 500x500px or larger</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gallery Tab -->
+            <div id="gallery-tab" class="tab-content" style="display: none;">
+                <div class="dashboard-header">
+                    <div>
+                        <h1 class="dashboard-title">Gallery & Portfolio</h1>
+                        <p class="welcome-message">Manage your portfolio and gallery images</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveGallery()">
+                        <i class="fas fa-save me-2"></i> Save Changes
+                    </button>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Portfolio Images</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-4">
+                                    <label class="form-label">Upload Portfolio Images</label>
+                                    <div class="upload-area" id="portfolio-upload-area">
+                                        <i class="fas fa-images"></i>
+                                        <h5>Select Portfolio Images</h5>
+                                        <p class="text-muted mb-0">Drag & drop or click to upload multiple images</p>
+                                        <input type="file" id="portfolioImages" accept="image/*" multiple class="d-none">
+                                    </div>
+                                    <small class="text-muted">These images will appear in your public portfolio gallery</small>
+                                </div>
+                                
+                                <div class="image-preview-container" id="portfolioPreview"></div>
+                                
+                                <div id="current-portfolio" class="mt-4">
+                                    <h6 class="section-title">Current Portfolio Images</h6>
+                                    <div class="row" id="portfolio-grid">
+                                        <!-- Current portfolio images will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Gallery Images</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-4">
+                                    <label class="form-label">Upload Gallery Images</label>
+                                    <div class="upload-area" id="gallery-upload-area">
+                                        <i class="fas fa-images"></i>
+                                        <h5>Select Gallery Images</h5>
+                                        <p class="text-muted mb-0">Drag & drop or click to upload multiple images</p>
+                                        <input type="file" id="galleryImages" accept="image/*" multiple class="d-none">
+                                    </div>
+                                    <small class="text-muted">These images will appear in your public image gallery</small>
+                                </div>
+                                
+                                <div class="image-preview-container" id="galleryPreview"></div>
+                                
+                                <div id="current-gallery" class="mt-4">
+                                    <h6 class="section-title">Current Gallery Images</h6>
+                                    <div class="row" id="gallery-grid">
+                                        <!-- Current gallery images will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Media Tab -->
+            <div id="social-tab" class="tab-content" style="display: none;">
+                <div class="dashboard-header">
+                    <div>
+                        <h1 class="dashboard-title">Social Media Links</h1>
+                        <p class="welcome-message">Connect your social media profiles</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveSocialMedia()">
+                        <i class="fas fa-save me-2"></i> Save Changes
+                    </button>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Social Media Profiles</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-4">
+                                            <label for="facebookUrl" class="form-label">Facebook</label>
+                                            <div class="social-input-group input-group">
+                                                <span class="input-group-text"><i class="fab fa-facebook text-primary"></i></span>
+                                                <input type="url" class="form-control" id="facebookUrl" placeholder="https://facebook.com/yourpage">
+                                            </div>
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="instagramUrl" class="form-label">Instagram</label>
+                                            <div class="social-input-group input-group">
+                                                <span class="input-group-text"><i class="fab fa-instagram text-danger"></i></span>
+                                                <input type="url" class="form-control" id="instagramUrl" placeholder="https://instagram.com/yourprofile">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-4">
+                                            <label for="twitterUrl" class="form-label">Twitter</label>
+                                            <div class="social-input-group input-group">
+                                                <span class="input-group-text"><i class="fab fa-twitter text-info"></i></span>
+                                                <input type="url" class="form-control" id="twitterUrl" placeholder="https://twitter.com/yourhandle">
+                                            </div>
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="websiteUrl" class="form-label">Your Website</label>
+                                            <div class="social-input-group input-group">
+                                                <span class="input-group-text"><i class="fas fa-globe text-success"></i></span>
+                                                <input type="url" class="form-control" id="websiteUrl" placeholder="https://yourwebsite.com">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-info mt-4">
+                                    <i class="fas fa-info-circle me-2"></i> 
+                                    Adding social media links helps clients connect with you across different platforms.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let currentVendor = null;
+        let currentVendorId = null;
+        let logoFile = null;
+        let portfolioFiles = [];
+        let galleryFiles = [];
+        let currentPortfolio = [];
+        let currentGallery = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+        });
+
+        function initializeApp() {
+            const { auth, onAuthStateChanged } = window.firebase;
+            
+            // Check authentication
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    console.log("User authenticated:", user.email);
+                    document.getElementById('welcome-message').textContent = `Welcome back, ${user.email.split('@')[0]}!`;
+                    await findVendorByEmail(user.email);
+                } else {
+                    console.log("No user logged in");
+                    document.getElementById('auth-overlay').style.display = 'flex';
+                }
+            });
+        }
+
+        async function findVendorByEmail(email) {
+            const { db, collection, query, where, getDocs, setDoc, doc } = window.firebase;
+            
+            try {
+                console.log("Searching for vendor with email:", email);
+                
+                const vendorsQuery = query(
+                    collection(db, "vendors"),
+                    where("email", "==", email)
+                );
+                
+                const querySnapshot = await getDocs(vendorsQuery);
+                
+                if (querySnapshot.empty) {
+                    console.log("No vendor found with this email, creating new vendor profile");
+                    
+                    // Create a new vendor profile
+                    const newVendor = {
+                        name: "Your Business Name",
+                        email: email,
+                        category: "",
+                        phone: "",
+                        description: "",
+                        price: "",
+                        rating: 4.9,
+                        experience: 5,
+                        logoUrl: "",
+                        portfolio: [],
+                        gallery: [],
+                        website: "",
+                        facebook: "",
+                        instagram: "",
+                        twitter: "",
+                        isPremium: false,
+                        profileViews: 0,
+                        inquiries: 0,
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    };
+                    
+                    // Add new vendor to Firestore
+                    const newVendorRef = doc(collection(db, "vendors"));
+                    await setDoc(newVendorRef, newVendor);
+                    
+                    currentVendorId = newVendorRef.id;
+                    currentVendor = newVendor;
+                    
+                    console.log("New vendor created with ID:", currentVendorId);
+                } else {
+                    // Get the first matching vendor (should be only one)
+                    const vendorDoc = querySnapshot.docs[0];
+                    currentVendorId = vendorDoc.id;
+                    currentVendor = vendorDoc.data();
+                    
+                    console.log("Vendor found:", currentVendor);
+                }
+                
+                // Hide auth overlay and load vendor data
+                document.getElementById('auth-overlay').style.display = 'none';
+                loadVendorData();
+                
+            } catch (error) {
+                console.error("Error finding vendor:", error);
+                showMessage("Error loading vendor data: " + error.message, "error");
+            }
+        }
+
+        function loadVendorData() {
+            if (!currentVendor) return;
+            
+            // Update sidebar
+            document.getElementById('sidebar-vendor-name').textContent = currentVendor.name || 'Vendor';
+            document.getElementById('sidebar-vendor-category').textContent = currentVendor.category || 'Category';
+            
+            // Update premium badge
+            const premiumBadge = document.getElementById('sidebar-premium-badge');
+            if (currentVendor.isPremium) {
+                premiumBadge.style.display = 'block';
+            } else {
+                premiumBadge.style.display = 'none';
+            }
+            
+            // Update dashboard preview
+            updateDashboardPreview();
+            
+            // Load edit forms
+            loadProfileForm();
+            loadGalleryData();
+            loadSocialMedia();
+            
+            // Update stats
+            updateStats();
+        }
+
+        function updateDashboardPreview() {
+            if (!currentVendor) return;
+            
+            // Basic info
+            document.getElementById('preview-name').textContent = currentVendor.name || 'Your Business Name';
+            document.getElementById('preview-category').textContent = currentVendor.category || 'Category';
+            document.getElementById('preview-email').textContent = currentVendor.email || 'Not set';
+            document.getElementById('preview-phone').textContent = currentVendor.phone || currentVendor.location || 'Not set';
+            document.getElementById('preview-description').textContent = currentVendor.description || 'No description provided yet.';
+            
+            // Logo
+            const logoPreview = document.getElementById('preview-logo');
+            const logoPlaceholder = document.getElementById('preview-logo-placeholder');
+            if (currentVendor.logoUrl) {
+                logoPreview.src = currentVendor.logoUrl;
+                logoPreview.style.display = 'block';
+                logoPlaceholder.style.display = 'none';
+            } else {
+                logoPreview.style.display = 'none';
+                logoPlaceholder.style.display = 'flex';
+            }
+            
+            // Price range
+            const priceRange = formatPriceRange(currentVendor.price);
+            document.getElementById('preview-price').textContent = priceRange || 'Not set';
+            
+            // Rating
+            document.getElementById('preview-rating').textContent = currentVendor.rating ? `${currentVendor.rating} ★` : 'Not rated';
+            
+            // Featured badge
+            const featuredBadge = document.getElementById('preview-featured-badge');
+            if (currentVendor.isPremium) {
+                featuredBadge.style.display = 'block';
+            } else {
+                featuredBadge.style.display = 'none';
+            }
+        }
+
+        function loadProfileForm() {
+            if (!currentVendor) return;
+            
+            // Fill form with current data
+            document.getElementById('vendorName').value = currentVendor.name || '';
+            document.getElementById('vendorCategory').value = currentVendor.category || '';
+            document.getElementById('vendorEmail').value = currentVendor.email || '';
+            document.getElementById('vendorPhone').value = currentVendor.phone || currentVendor.location || '';
+            document.getElementById('vendorWebsite').value = currentVendor.website || '';
+            document.getElementById('vendorPrice').value = currentVendor.price || '';
+            document.getElementById('vendorRating').value = currentVendor.rating || '4.9';
+            document.getElementById('vendorExperience').value = currentVendor.experience || 5;
+            document.getElementById('vendorDescription').value = currentVendor.description || '';
+            
+            // Logo preview
+            const logoPreview = document.getElementById('logoPreview');
+            const logoPlaceholder = document.getElementById('logoPreviewPlaceholder');
+            if (currentVendor.logoUrl) {
+                logoPreview.src = currentVendor.logoUrl;
+                logoPreview.style.display = 'block';
+                logoPlaceholder.style.display = 'none';
+            } else {
+                logoPreview.style.display = 'none';
+                logoPlaceholder.style.display = 'flex';
+            }
+        }
+
+        function loadGalleryData() {
+            if (!currentVendor) return;
+            
+            // Load portfolio images
+            currentPortfolio = currentVendor.portfolio || [];
+            renderPortfolioGrid();
+            
+            // Load gallery images
+            currentGallery = currentVendor.gallery || [];
+            renderGalleryGrid();
+        }
+
+        function loadSocialMedia() {
+            if (!currentVendor) return;
+            
+            document.getElementById('facebookUrl').value = currentVendor.facebook || '';
+            document.getElementById('instagramUrl').value = currentVendor.instagram || '';
+            document.getElementById('twitterUrl').value = currentVendor.twitter || '';
+            document.getElementById('websiteUrl').value = currentVendor.website || '';
+        }
+
+        function renderPortfolioGrid() {
+            const portfolioGrid = document.getElementById('portfolio-grid');
+            portfolioGrid.innerHTML = '';
+            
+            if (currentPortfolio.length === 0) {
+                portfolioGrid.innerHTML = `
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <i class="fas fa-images"></i>
+                            <h5>No portfolio images</h5>
+                            <p>Upload images to showcase your work</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            currentPortfolio.forEach((url, index) => {
+                const col = document.createElement('div');
+                col.className = 'col-md-3 mb-4';
+                col.innerHTML = `
+                    <div class="gallery-item">
+                        <img src="${url}" alt="Portfolio image ${index + 1}" class="img-fluid">
+                        <button type="button" class="btn-remove" onclick="removePortfolioImage(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                portfolioGrid.appendChild(col);
+            });
+        }
+
+        function renderGalleryGrid() {
+            const galleryGrid = document.getElementById('gallery-grid');
+            galleryGrid.innerHTML = '';
+            
+            if (currentGallery.length === 0) {
+                galleryGrid.innerHTML = `
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <i class="fas fa-images"></i>
+                            <h5>No gallery images</h5>
+                            <p>Upload images to showcase your work</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            currentGallery.forEach((url, index) => {
+                const col = document.createElement('div');
+                col.className = 'col-md-3 mb-4';
+                col.innerHTML = `
+                    <div class="gallery-item">
+                        <img src="${url}" alt="Gallery image ${index + 1}" class="img-fluid">
+                        <button type="button" class="btn-remove" onclick="removeGalleryImage(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                galleryGrid.appendChild(col);
+            });
+        }
+
+        function setupEventListeners() {
+            // Tab navigation
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tab = this.getAttribute('data-tab');
+                    if (tab) {
+                        switchTab(tab);
+                    }
+                });
+            });
+            
+            // Logo upload
+            document.getElementById('logo-upload-area').addEventListener('click', function() {
+                document.getElementById('vendorLogo').click();
+            });
+            document.getElementById('vendorLogo').addEventListener('change', handleLogoUpload);
+            
+            // Portfolio upload
+            document.getElementById('portfolio-upload-area').addEventListener('click', function() {
+                document.getElementById('portfolioImages').click();
+            });
+            document.getElementById('portfolioImages').addEventListener('change', handlePortfolioUpload);
+            
+            // Gallery upload
+            document.getElementById('gallery-upload-area').addEventListener('click', function() {
+                document.getElementById('galleryImages').click();
+            });
+            document.getElementById('galleryImages').addEventListener('change', handleGalleryUpload);
+            
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
+            
+            // Drag and drop for upload areas
+            setupDragAndDrop('logo-upload-area', handleLogoUpload);
+            setupDragAndDrop('portfolio-upload-area', handlePortfolioUpload);
+            setupDragAndDrop('gallery-upload-area', handleGalleryUpload);
+        }
+
+        function setupDragAndDrop(elementId, handler) {
+            const element = document.getElementById(elementId);
+            
+            element.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                element.style.borderColor = 'var(--primary-color)';
+                element.style.backgroundColor = 'rgba(109, 91, 161, 0.05)';
+            });
+            
+            element.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                element.style.borderColor = '#cbd5e1';
+                element.style.backgroundColor = '#f8fafc';
+            });
+            
+            element.addEventListener('drop', function(e) {
+                e.preventDefault();
+                element.style.borderColor = '#cbd5e1';
+                element.style.backgroundColor = '#f8fafc';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const input = element.querySelector('input[type="file"]');
+                    input.files = files;
+                    
+                    // Create a change event
+                    const event = new Event('change', { bubbles: true });
+                    input.dispatchEvent(event);
+                }
+            });
+        }
+
+        function switchTab(tabName) {
+            // Update active nav link
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            
+            // Show selected tab content
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.getElementById(`${tabName}-tab`).style.display = 'block';
+        }
+
+        function handleLogoUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    showMessage('Please select an image file', 'error');
+                    return;
+                }
+                
+                // Validate file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    showMessage('Image size should be less than 5MB', 'error');
+                    return;
+                }
+                
+                logoFile = file;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const logoPreview = document.getElementById('logoPreview');
+                    const logoPlaceholder = document.getElementById('logoPreviewPlaceholder');
+                    logoPreview.src = event.target.result;
+                    logoPreview.style.display = 'block';
+                    logoPlaceholder.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handlePortfolioUpload(e) {
+            const files = Array.from(e.target.files);
+            
+            // Filter only image files
+            const imageFiles = files.filter(file => file.type.startsWith('image/'));
+            
+            // Validate file sizes
+            const validFiles = imageFiles.filter(file => file.size <= 5 * 1024 * 1024);
+            
+            if (validFiles.length < imageFiles.length) {
+                showMessage('Some files were skipped because they exceed 5MB size limit', 'warning');
+            }
+            
+            portfolioFiles = [...portfolioFiles, ...validFiles];
+            
+            const previewContainer = document.getElementById('portfolioPreview');
+            validFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.classList.add('preview-image');
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function handleGalleryUpload(e) {
+            const files = Array.from(e.target.files);
+            
+            // Filter only image files
+            const imageFiles = files.filter(file => file.type.startsWith('image/'));
+            
+            // Validate file sizes
+            const validFiles = imageFiles.filter(file => file.size <= 5 * 1024 * 1024);
+            
+            if (validFiles.length < imageFiles.length) {
+                showMessage('Some files were skipped because they exceed 5MB size limit', 'warning');
+            }
+            
+            galleryFiles = [...galleryFiles, ...validFiles];
+            
+            const previewContainer = document.getElementById('galleryPreview');
+            validFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.classList.add('preview-image');
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function saveProfile() {
+            if (!currentVendorId) return;
+            
+            const { updateDoc, doc, serverTimestamp, storage, ref, uploadBytes, getDownloadURL } = window.firebase;
+            
+            const profileData = {
+                name: document.getElementById('vendorName').value,
+                category: document.getElementById('vendorCategory').value,
+                email: document.getElementById('vendorEmail').value,
+                phone: document.getElementById('vendorPhone').value,
+                website: document.getElementById('vendorWebsite').value,
+                description: document.getElementById('vendorDescription').value,
+                price: parseFloat(document.getElementById('vendorPrice').value),
+                rating: parseFloat(document.getElementById('vendorRating').value),
+                experience: parseInt(document.getElementById('vendorExperience').value),
+                updatedAt: serverTimestamp()
+            };
+            
+            try {
+                // Upload logo if changed
+                if (logoFile) {
+                    const logoRef = ref(storage, `vendor-logos/${currentVendorId}/${Date.now()}-${logoFile.name}`);
+                    await uploadBytes(logoRef, logoFile);
+                    profileData.logoUrl = await getDownloadURL(logoRef);
+                }
+                
+                // Update Firestore
+                await updateDoc(doc(db, 'vendors', currentVendorId), profileData);
+                
+                // Update local data
+                currentVendor = { ...currentVendor, ...profileData };
+                
+                // Update UI
+                updateDashboardPreview();
+                loadProfileForm();
+                
+                showMessage('Profile updated successfully!', 'success');
+                console.log('Profile saved:', profileData);
+                
+            } catch (error) {
+                console.error("Error saving profile:", error);
+                showMessage("Failed to save profile: " + error.message, 'error');
+            }
+        }
+
+        async function saveGallery() {
+            if (!currentVendorId) return;
+            
+            const { updateDoc, doc, serverTimestamp, storage, ref, uploadBytes, getDownloadURL } = window.firebase;
+            
+            try {
+                const updates = {
+                    updatedAt: serverTimestamp()
+                };
+                
+                // Upload new portfolio images
+                if (portfolioFiles.length > 0) {
+                    const portfolioUrls = [...currentPortfolio];
+                    for (const file of portfolioFiles) {
+                        const portfolioRef = ref(storage, `vendor-portfolio/${currentVendorId}/${Date.now()}-${file.name}`);
+                        await uploadBytes(portfolioRef, file);
+                        const url = await getDownloadURL(portfolioRef);
+                        portfolioUrls.push(url);
+                    }
+                    updates.portfolio = portfolioUrls;
+                    currentPortfolio = portfolioUrls;
+                }
+                
+                // Upload new gallery images
+                if (galleryFiles.length > 0) {
+                    const galleryUrls = [...currentGallery];
+                    for (const file of galleryFiles) {
+                        const galleryRef = ref(storage, `vendor-gallery/${currentVendorId}/${Date.now()}-${file.name}`);
+                        await uploadBytes(galleryRef, file);
+                        const url = await getDownloadURL(galleryRef);
+                        galleryUrls.push(url);
+                    }
+                    updates.gallery = galleryUrls;
+                    currentGallery = galleryUrls;
+                }
+                
+                // Update Firestore
+                await updateDoc(doc(db, 'vendors', currentVendorId), updates);
+                
+                // Update UI
+                renderPortfolioGrid();
+                renderGalleryGrid();
+                
+                // Clear file arrays and previews
+                portfolioFiles = [];
+                galleryFiles = [];
+                document.getElementById('portfolioPreview').innerHTML = '';
+                document.getElementById('galleryPreview').innerHTML = '';
+                
+                showMessage('Gallery updated successfully!', 'success');
+                
+            } catch (error) {
+                console.error("Error saving gallery:", error);
+                showMessage("Failed to save gallery: " + error.message, 'error');
+            }
+        }
+
+        async function saveSocialMedia() {
+            if (!currentVendorId) return;
+            
+            const { updateDoc, doc, serverTimestamp } = window.firebase;
+            
+            const socialData = {
+                facebook: document.getElementById('facebookUrl').value,
+                instagram: document.getElementById('instagramUrl').value,
+                twitter: document.getElementById('twitterUrl').value,
+                website: document.getElementById('websiteUrl').value,
+                updatedAt: serverTimestamp()
+            };
+            
+            try {
+                await updateDoc(doc(db, 'vendors', currentVendorId), socialData);
+                
+                // Update local data
+                currentVendor = { ...currentVendor, ...socialData };
+                
+                showMessage('Social media links updated successfully!', 'success');
+                
+            } catch (error) {
+                console.error("Error saving social media:", error);
+                showMessage("Failed to save social media links: " + error.message, 'error');
+            }
+        }
+
+        async function removePortfolioImage(index) {
+            if (!confirm('Are you sure you want to remove this image from your portfolio?')) return;
+            
+            const { updateDoc, doc, serverTimestamp, storage, ref, deleteObject } = window.firebase;
+            
+            try {
+                // Get the URL to delete from storage
+                const imageUrl = currentPortfolio[index];
+                
+                // Extract the path from the URL
+                const imageRef = ref(storage, imageUrl);
+                
+                // Delete from storage
+                try {
+                    await deleteObject(imageRef);
+                } catch (error) {
+                    console.warn("Could not delete image from storage:", error);
+                }
+                
+                // Remove from array
+                currentPortfolio.splice(index, 1);
+                
+                // Update Firestore
+                await updateDoc(doc(db, 'vendors', currentVendorId), {
+                    portfolio: currentPortfolio,
+                    updatedAt: serverTimestamp()
+                });
+                
+                renderPortfolioGrid();
+                showMessage('Portfolio image removed successfully!', 'success');
+                
+            } catch (error) {
+                console.error("Error removing portfolio image:", error);
+                showMessage("Failed to remove portfolio image", 'error');
+            }
+        }
+
+        async function removeGalleryImage(index) {
+            if (!confirm('Are you sure you want to remove this image from your gallery?')) return;
+            
+            const { updateDoc, doc, serverTimestamp, storage, ref, deleteObject } = window.firebase;
+            
+            try {
+                // Get the URL to delete from storage
+                const imageUrl = currentGallery[index];
+                
+                // Extract the path from the URL
+                const imageRef = ref(storage, imageUrl);
+                
+                // Delete from storage
+                try {
+                    await deleteObject(imageRef);
+                } catch (error) {
+                    console.warn("Could not delete image from storage:", error);
+                }
+                
+                // Remove from array
+                currentGallery.splice(index, 1);
+                
+                // Update Firestore
+                await updateDoc(doc(db, 'vendors', currentVendorId), {
+                    gallery: currentGallery,
+                    updatedAt: serverTimestamp()
+                });
+                
+                renderGalleryGrid();
+                showMessage('Gallery image removed successfully!', 'success');
+                
+            } catch (error) {
+                console.error("Error removing gallery image:", error);
+                showMessage("Failed to remove gallery image", 'error');
+            }
+        }
+
+        function updateStats() {
+            // These would typically come from your analytics
+            // For now, we'll use placeholder data
+            document.getElementById('profile-views').textContent = (currentVendor.profileViews || 0) + Math.floor(Math.random() * 20);
+            document.getElementById('inquiries-count').textContent = (currentVendor.inquiries || 0) + Math.floor(Math.random() * 5);
+            document.getElementById('rating-display').textContent = currentVendor.rating || '4.5';
+            
+            // Calculate profile completion percentage
+            const completion = calculateProfileCompletion();
+            document.getElementById('completion-percentage').textContent = completion + '%';
+            document.getElementById('completion-bar').style.width = completion + '%';
+            
+            // Update activity count
+            const activityCount = Math.floor(Math.random() * 5) + 1;
+            document.getElementById('activity-count').textContent = activityCount;
+        }
+
+        function calculateProfileCompletion() {
+            if (!currentVendor) return 0;
+            
+            const requiredFields = ['name', 'category', 'email', 'phone', 'description', 'price'];
+            const optionalFields = ['logoUrl', 'website', 'portfolio', 'gallery', 'facebook', 'instagram', 'twitter'];
+            
+            let completed = 0;
+            
+            // Check required fields
+            requiredFields.forEach(field => {
+                if (currentVendor[field] && currentVendor[field].toString().trim() !== '') {
+                    completed++;
+                }
+            });
+            
+            // Check optional fields (weighted less)
+            optionalFields.forEach(field => {
+                if (currentVendor[field] && 
+                   (Array.isArray(currentVendor[field]) ? currentVendor[field].length > 0 : currentVendor[field].toString().trim() !== '')) {
+                    completed += 0.5;
+                }
+            });
+            
+            const maxScore = requiredFields.length + (optionalFields.length * 0.5);
+            return Math.min(100, Math.round((completed / maxScore) * 100));
+        }
+
+        function formatPriceRange(price) {
+            if (!price) return null;
+            const priceNum = parseFloat(price);
+            if (priceNum < 100) return '$ - Budget Friendly';
+            if (priceNum < 500) return '$$ - Moderate';
+            if (priceNum < 1000) return '$$$ - Premium';
+            return '$$$$ - Luxury';
+        }
+
+        function showMessage(message, type) {
+            // Create alert element
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type === 'error' ? 'danger' : 'success'} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'} me-2"></i>
+                    <div>${message}</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            // Add to page
+            document.querySelector('.main-content').insertBefore(alertDiv, document.querySelector('.main-content').firstChild);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentElement) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        function refreshData() {
+            if (currentVendorId) {
+                findVendorByEmail(currentVendor.email);
+                showMessage('Data refreshed successfully!', 'success');
+            }
+        }
+
+        function redirectToLogin() {
+            window.location.href = '../pages/login.html';
+        }
+
+        async function handleLogout() {
+            const { auth, signOut } = window.firebase;
+            
+            try {
+                await signOut(auth);
+                window.location.href = '../pages/login.html';
+            } catch (error) {
+                console.error("Error signing out:", error);
+            }
+        }
+    </script>
+</body>
+</html>
